@@ -1,4 +1,11 @@
 import React from 'react';
+import { 
+  Copy, 
+  FileQuestion, 
+  Calendar, 
+  Calculator, 
+  BarChart3 
+} from 'lucide-react';
 
 // SaaS Interactive SVG Area Trend Chart
 export function VolumeTrendChart({ data = [] }) {
@@ -240,63 +247,223 @@ export function EngineBenchmarkChart() {
   );
 }
 
-// Validation Discrepancy Breakdown by Root Cause
+// Validation Discrepancy Breakdown by Root Cause with Interactive Bar Chart
 export function DiscrepancyTypeChart({ documents = [] }) {
   const flagged = documents.filter(d => d.status === 'FLAGGED');
   
-  // Categorize
-  let mathErrors = 0;
-  let missingErrors = 0;
-  let duplicateErrors = 0;
-  let syntaxErrors = 0;
+  // Categorize across all flagged documents
+  let duplicateCount = 0;
+  let missingCount = 0;
+  let dateCount = 0;
+  let mathCount = 0;
 
-  flagged.forEach(d => {
-    const total = Number(d.data?.total || 0);
-    const subtotal = Number(d.data?.subtotal || 0);
-    const tax = Number(d.data?.tax || 0);
-    
-    if (Math.abs((subtotal + tax) - total) > 0.05) mathErrors++;
-    if (!d.data?.invoiceNo || !d.data?.vendor) missingErrors++;
-    if (d.data?.isDuplicate) duplicateErrors++;
-    if (total <= 0) syntaxErrors++;
+  flagged.forEach(doc => {
+    const d = doc.data || {};
+    const subtotal = Number(d.subtotal) || 0;
+    const tax = Number(d.tax) || 0;
+    const total = Number(d.total) || 0;
+
+    // Check 1: Missing Required Fields
+    const isMissing = !d.invoiceNo || !d.vendor || !d.issueDate || d.total === null || d.total === undefined;
+    if (isMissing) missingCount++;
+
+    // Check 2: Numeric Math Calculation (Subtotal + Tax != Total or Line Items mismatch)
+    const lineItems = d.lineItems || [];
+    const lineSum = lineItems.reduce((acc, it) => acc + (Number(it.qty) || 0) * (Number(it.unitPrice) || 0), 0);
+    const hasLineItems = lineItems.length > 0;
+    const lineMismatch = hasLineItems && Math.abs(lineSum - subtotal) > 0.05;
+    const totalMismatch = Math.abs((subtotal + tax) - total) > 0.05;
+    if (lineMismatch || totalMismatch) mathCount++;
+
+    // Check 3: Duplicate Invoice Check
+    const isDupe = d.isDuplicate || documents.some(other => 
+      other.id !== doc.id &&
+      other.data?.invoiceNo &&
+      d.invoiceNo &&
+      other.data.invoiceNo.trim().toLowerCase() === d.invoiceNo.trim().toLowerCase()
+    );
+    if (isDupe) duplicateCount++;
+
+    // Check 4: Date Logic Check
+    if (!d.issueDate || isNaN(new Date(d.issueDate).getTime())) {
+      dateCount++;
+    } else {
+      const parsed = new Date(d.issueDate);
+      const maxFuture = new Date();
+      maxFuture.setDate(maxFuture.getDate() + 45);
+      if (parsed > maxFuture) dateCount++;
+    }
   });
 
-  const totalErrors = Math.max(1, mathErrors + missingErrors + duplicateErrors + syntaxErrors);
+  // Fallback realistic seeds if no documents loaded yet
+  const hasLive = flagged.length > 0;
+  const countDupe = hasLive ? duplicateCount : 17;
+  const countMissing = hasLive ? missingCount : 6;
+  const countDate = hasLive ? dateCount : 5;
+  const countMath = hasLive ? mathCount : 1;
+
+  const totalFlaggedCount = hasLive ? flagged.length : 20;
 
   const categories = [
-    { label: 'Calculation Mismatch (Subtotal + Tax != Total)', count: mathErrors || 8, color: 'bg-amber-500', barWidth: `${Math.round(((mathErrors || 8) / totalErrors) * 100)}%` },
-    { label: 'Missing Mandatory Identifier (Invoice # / Vendor)', count: missingErrors || 5, color: 'bg-rose-500', barWidth: `${Math.round(((missingErrors || 5) / totalErrors) * 100)}%` },
-    { label: 'Duplicate Invoice Check (Hash & Metadata Collision)', count: duplicateErrors || 3, color: 'bg-purple-500', barWidth: `${Math.round(((duplicateErrors || 3) / totalErrors) * 100)}%` },
-    { label: 'Numeric Format / Negative Amount Outlier', count: syntaxErrors || 2, color: 'bg-sky-500', barWidth: `${Math.round(((syntaxErrors || 2) / totalErrors) * 100)}%` },
+    { 
+      id: 'duplicate',
+      name: 'Duplicate Invoices', 
+      shortName: 'Duplicate Check',
+      rule: 'Rule 3: Collision',
+      detail: 'Hash / Invoice # collision across repository',
+      count: countDupe,
+      color: '#8b5cf6',
+      badgeBg: 'bg-purple-600 text-white',
+      badgeLight: 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+      gradient: 'from-purple-600 via-indigo-600 to-indigo-500',
+      icon: Copy
+    },
+    { 
+      id: 'missing',
+      name: 'Missing Identifiers', 
+      shortName: 'Missing Fields',
+      rule: 'Rule 1: Mandatories',
+      detail: 'Missing Invoice #, Vendor Name, or Issue Date',
+      count: countMissing,
+      color: '#f43f5e',
+      badgeBg: 'bg-rose-600 text-white',
+      badgeLight: 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+      gradient: 'from-rose-600 via-rose-500 to-red-500',
+      icon: FileQuestion
+    },
+    { 
+      id: 'date',
+      name: 'Date Anomalies', 
+      shortName: 'Calendar Logic',
+      rule: 'Rule 4: Date Checks',
+      detail: 'Invalid date formatting or future date > 45 days',
+      count: countDate,
+      color: '#0284c7',
+      badgeBg: 'bg-sky-600 text-white',
+      badgeLight: 'bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-300 border-sky-200 dark:border-sky-800',
+      gradient: 'from-sky-600 via-cyan-500 to-teal-500',
+      icon: Calendar
+    },
+    { 
+      id: 'math',
+      name: 'Calculation Mismatch', 
+      shortName: 'Math Discrepancy',
+      rule: 'Rule 2: Subtotal+Tax',
+      detail: 'Subtotal + Tax != Total or Line Items mismatch',
+      count: countMath,
+      color: '#f59e0b',
+      badgeBg: 'bg-amber-600 text-white',
+      badgeLight: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+      gradient: 'from-amber-500 via-orange-500 to-amber-600',
+      icon: Calculator
+    },
   ];
 
+  const maxCount = Math.max(...categories.map(c => c.count), 1);
+
   return (
-    <div className="w-full flex flex-col gap-3.5">
+    <div className="w-full flex flex-col gap-4">
+      {/* Header with Title & Live Triage Badge */}
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white">Validation Discrepancy Root Causes</h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Audit triage classification across flagged records</p>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-[#2f5fb0] dark:text-[#5c9aff]" />
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white">Validation Discrepancy Root Causes</h4>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Audit triage classification across flagged records</p>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 font-bold border border-rose-200 dark:border-rose-800">
-          Task 3 Rules
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 font-bold border border-rose-200 dark:border-rose-800 flex items-center gap-1.5 shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <span>{totalFlaggedCount} Flagged Docs</span>
+          </span>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {categories.map((cat, idx) => (
-          <div key={idx} className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between text-xs font-medium">
-              <span className="text-slate-700 dark:text-slate-300 truncate pr-2">{cat.label}</span>
-              <span className="font-mono font-bold text-slate-900 dark:text-white flex-shrink-0">{cat.count} docs</span>
+      {/* Vertical Column Bar Chart Visualization */}
+      <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-2 px-1">
+          <span>Root Cause Frequency (Document Volume)</span>
+          <span>Scale Baseline: {maxCount} docs max</span>
+        </div>
+
+        {/* Chart Column Canvas */}
+        <div className="h-44 w-full pt-4 pb-2 px-2 sm:px-4 flex items-end justify-between gap-3 sm:gap-6 relative">
+          {/* Reference Guideline Grid */}
+          <div className="absolute inset-x-2 sm:inset-x-4 top-4 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute inset-x-2 sm:inset-x-4 top-16 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute inset-x-2 sm:inset-x-4 top-28 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+
+          {categories.map((cat) => {
+            const heightPercent = Math.max(14, Math.round((cat.count / maxCount) * 100));
+            const Icon = cat.icon;
+            return (
+              <div key={cat.id} className="flex-1 flex flex-col items-center h-full justify-end group relative z-10">
+                {/* Count Pill on Top of Bar */}
+                <div className="mb-2 text-center transition-all duration-200 group-hover:-translate-y-1">
+                  <span className={`inline-flex items-center gap-1 font-mono text-[11px] font-extrabold px-2.5 py-0.5 rounded-md shadow-xs ${cat.badgeBg}`}>
+                    {cat.count} {cat.count === 1 ? 'doc' : 'docs'}
+                  </span>
+                </div>
+
+                {/* Vertical Bar */}
+                <div className="w-full max-w-[42px] sm:max-w-[52px] bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl overflow-hidden p-0.5 flex flex-col justify-end h-24">
+                  <div 
+                    style={{ height: `${heightPercent}%` }}
+                    className={`w-full rounded-t-lg bg-gradient-to-t ${cat.gradient} shadow-sm transition-all duration-700 group-hover:brightness-110 group-hover:scale-y-[1.02] origin-bottom`}
+                  ></div>
+                </div>
+
+                {/* X-Axis Label */}
+                <div className="mt-2 text-center w-full">
+                  <div className="flex items-center justify-center gap-1">
+                    <Icon className="w-3 h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200" />
+                    <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate font-sans">
+                      {cat.shortName}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 block truncate">
+                    {cat.rule}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Granular Audit Breakdown List */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {categories.map((cat) => {
+          const Icon = cat.icon;
+          return (
+            <div 
+              key={cat.id} 
+              className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 flex items-center justify-between gap-2.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-xs"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${cat.badgeLight} border`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    {cat.name}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {cat.detail}
+                  </div>
+                </div>
+              </div>
+
+              {/* Prominent Doc Count Badge */}
+              <div className="text-right flex-shrink-0">
+                <span className="font-mono text-xs font-extrabold text-slate-900 dark:text-white px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 block">
+                  {cat.count} {cat.count === 1 ? 'doc' : 'docs'}
+                </span>
+              </div>
             </div>
-            <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-              <div 
-                style={{ width: cat.barWidth }} 
-                className={`h-full ${cat.color} rounded-full transition-all duration-500`}
-              ></div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
