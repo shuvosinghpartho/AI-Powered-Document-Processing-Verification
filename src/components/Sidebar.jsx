@@ -152,7 +152,7 @@ export default function Sidebar({
                 href="https://www.linkedin.com/in/shuvosinghpartho/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-bold text-[#1c3461] dark:text-sky-300 hover:text-[#e57824] dark:hover:text-[#e57824] transition-colors underline decoration-slate-300 dark:decoration-slate-700 hover:decoration-[#e57824]"
+                className="font-bold text-[#1c3461] dark:text-sky-300 hover:text-[#e57824] dark:hover:text-[#e57824] transition-colors no-underline"
                 title="View LinkedIn Profile of Partho"
               >
                 Partho
