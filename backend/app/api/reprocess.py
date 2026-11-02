@@ -8,6 +8,7 @@ from app.workers.pipeline_worker import run_document_pipeline_sync
 router = APIRouter(tags=["Reprocess API"])
 
 @router.post("/documents/{doc_id}/reprocess")
+@router.post("/reprocess/{doc_id}")
 async def reprocess_document(doc_id: str, background_tasks: BackgroundTasks):
     """
     Reprocess API: Re-runs Gemini AI Extraction and deterministic

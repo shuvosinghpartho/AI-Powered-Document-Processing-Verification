@@ -5,7 +5,7 @@ from app.database import init_db
 
 @pytest.fixture(autouse=True)
 def setup():
-    init_db()
+    init_db(force_seed=True)
 
 client = TestClient(app)
 

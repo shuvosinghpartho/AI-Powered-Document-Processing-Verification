@@ -18,7 +18,7 @@ def get_connection() -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
+def init_db(force_seed: bool = False):
     """Initializes the SQLite schema for the Document Intelligence System."""
     conn = get_connection()
     cursor = conn.cursor()
@@ -108,10 +108,10 @@ def init_db():
 
     conn.commit()
 
-    # Seed with initial records if empty
+    # Seed with initial records if empty or forced
     cursor.execute("SELECT COUNT(*) as cnt FROM documents")
     count = cursor.fetchone()["cnt"]
-    if count == 0:
+    if count == 0 or force_seed:
         seed_initial_data(conn)
 
     conn.close()
