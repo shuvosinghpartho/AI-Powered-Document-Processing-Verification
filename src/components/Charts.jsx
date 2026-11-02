@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Copy, 
   FileQuestion, 
   Calendar, 
   Calculator, 
-  BarChart3 
+  BarChart3,
+  Cpu,
+  Zap,
+  Gauge,
+  Sparkles,
+  Eye,
+  FileText,
+  FileSpreadsheet
 } from 'lucide-react';
 
 // SaaS Interactive SVG Area Trend Chart
@@ -195,53 +202,244 @@ export function ValidationHealthBar({ validCount = 0, flaggedCount = 0, processi
   );
 }
 
-// Multi-Engine Latency & Extraction Accuracy Benchmark
+// Multi-Engine Latency & Extraction Accuracy Benchmark with Interactive Bar Chart
 export function EngineBenchmarkChart() {
-  const benchmarks = [
-    { name: 'csv.DictReader', type: 'CSV Delimited', latency: '28ms', latencyPct: 15, accuracy: '100.0%', status: 'Instant' },
-    { name: 'PyMuPDF (fitz)', type: 'Digital PDF', latency: '82ms', latencyPct: 24, accuracy: '99.4%', status: 'Fast' },
-    { name: 'openpyxl / pandas', type: 'Excel Workbooks', latency: '115ms', latencyPct: 32, accuracy: '99.8%', status: 'Optimal' },
-    { name: 'Gemini 3.5 Flash Lite', type: 'Entity Parsing LLM', latency: '310ms', latencyPct: 65, accuracy: '98.5%', status: 'Multi-Modal' },
-    { name: 'EasyOCR Vision Engine', type: 'Scanned Vision OCR', latency: '460ms', latencyPct: 88, accuracy: '94.2%', status: 'Vision AI' },
+  const [activeMetric, setActiveMetric] = useState('latency'); // 'latency' | 'accuracy'
+
+  const engines = [
+    { 
+      id: 'csv',
+      name: 'csv.DictReader', 
+      shortName: 'CSV Engine',
+      type: 'Delimited',
+      subDetail: 'Direct tabular dictionary stream',
+      latencyNum: 28,
+      latency: '28ms',
+      throughput: '~35.7 doc/s',
+      accuracyNum: 100.0,
+      accuracy: '100.0%',
+      status: 'Instant',
+      color: '#10b981',
+      badgeBg: 'bg-emerald-600 text-white',
+      badgeLight: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+      gradient: 'from-emerald-500 via-teal-500 to-teal-600',
+      icon: FileSpreadsheet
+    },
+    { 
+      id: 'fitz',
+      name: 'PyMuPDF (fitz)', 
+      shortName: 'PyMuPDF',
+      type: 'Digital PDF',
+      subDetail: 'C-native text stream parser',
+      latencyNum: 82,
+      latency: '82ms',
+      throughput: '~12.2 doc/s',
+      accuracyNum: 99.4,
+      accuracy: '99.4%',
+      status: 'Fast',
+      color: '#0ea5e9',
+      badgeBg: 'bg-sky-600 text-white',
+      badgeLight: 'bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-300 border-sky-200 dark:border-sky-800',
+      gradient: 'from-sky-500 via-blue-500 to-blue-600',
+      icon: FileText
+    },
+    { 
+      id: 'excel',
+      name: 'openpyxl / pandas', 
+      shortName: 'openpyxl',
+      type: 'Workbooks',
+      subDetail: 'Multi-sheet cell matrix engine',
+      latencyNum: 115,
+      latency: '115ms',
+      throughput: '~8.7 doc/s',
+      accuracyNum: 99.8,
+      accuracy: '99.8%',
+      status: 'Optimal',
+      color: '#6366f1',
+      badgeBg: 'bg-indigo-600 text-white',
+      badgeLight: 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
+      gradient: 'from-indigo-500 via-purple-500 to-indigo-600',
+      icon: FileSpreadsheet
+    },
+    { 
+      id: 'gemini',
+      name: 'Gemini 3.5 Flash Lite', 
+      shortName: 'Gemini 3.5',
+      type: 'LLM Entity',
+      subDetail: 'Zero-shot canonical schema extractor',
+      latencyNum: 310,
+      latency: '310ms',
+      throughput: '~3.2 doc/s',
+      accuracyNum: 98.5,
+      accuracy: '98.5%',
+      status: 'Multi-Modal',
+      color: '#a855f7',
+      badgeBg: 'bg-purple-600 text-white',
+      badgeLight: 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+      gradient: 'from-purple-500 via-fuchsia-500 to-indigo-500',
+      icon: Sparkles
+    },
+    { 
+      id: 'easyocr',
+      name: 'EasyOCR Vision Engine', 
+      shortName: 'EasyOCR',
+      type: 'Vision OCR',
+      subDetail: 'PyTorch deep learning vision model',
+      latencyNum: 460,
+      latency: '460ms',
+      throughput: '~2.2 doc/s',
+      accuracyNum: 94.2,
+      accuracy: '94.2%',
+      status: 'Vision AI',
+      color: '#f97316',
+      badgeBg: 'bg-amber-600 text-white',
+      badgeLight: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+      gradient: 'from-amber-500 via-orange-500 to-rose-500',
+      icon: Eye
+    },
   ];
 
+  const maxLatency = 460;
+
   return (
-    <div className="w-full flex flex-col gap-3.5">
-      <div className="flex items-center justify-between">
+    <div className="w-full flex flex-col gap-4">
+      {/* Header with Title & Metric Toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div>
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white">Multi-Engine Latency &amp; Accuracy</h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Benchmarked per-document processing throughput</p>
+          <div className="flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-[#2f5fb0] dark:text-[#5c9aff]" />
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white">Multi-Engine Latency &amp; Accuracy</h4>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Benchmarked per-document processing throughput</p>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-800">
-          Task 7 Benchmark
-        </span>
+
+        {/* Metric Selector Toggle */}
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 self-start sm:self-auto shadow-xs">
+          <button
+            onClick={() => setActiveMetric('latency')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeMetric === 'latency'
+                ? 'bg-white dark:bg-slate-900 text-[#2f5fb0] dark:text-sky-400 shadow-xs'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+            title="Sort/Scale by Execution Latency"
+          >
+            <Zap className="w-3 h-3 text-amber-500" />
+            <span>Latency (ms)</span>
+          </button>
+          <button
+            onClick={() => setActiveMetric('accuracy')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeMetric === 'accuracy'
+                ? 'bg-white dark:bg-slate-900 text-[#2f5fb0] dark:text-sky-400 shadow-xs'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+            title="Sort/Scale by Entity Extraction Accuracy"
+          >
+            <Gauge className="w-3 h-3 text-emerald-500" />
+            <span>Accuracy (%)</span>
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        {benchmarks.map((b, i) => (
-          <div key={i} className="flex flex-col gap-1 p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800/80">
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-900 dark:text-white font-mono text-[11px]">{b.name}</span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:inline">({b.type})</span>
+      {/* Vertical Column Bar Chart Visualization */}
+      <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-2 px-1">
+          <span>
+            {activeMetric === 'latency' ? 'Execution Latency (Lower is faster)' : 'Extraction Accuracy (Higher is better)'}
+          </span>
+          <span>
+            {activeMetric === 'latency' ? 'Baseline: 460ms max' : 'Baseline: 85% - 100%'}
+          </span>
+        </div>
+
+        {/* Chart Column Canvas */}
+        <div className="h-44 w-full pt-4 pb-2 px-1 sm:px-3 flex items-end justify-between gap-2 sm:gap-4 relative">
+          {/* Reference Guideline Grid */}
+          <div className="absolute inset-x-1 sm:inset-x-3 top-4 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute inset-x-1 sm:inset-x-3 top-16 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute inset-x-1 sm:inset-x-3 top-28 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+
+          {engines.map((eng) => {
+            const heightPercent = activeMetric === 'latency'
+              ? Math.max(16, Math.round((eng.latencyNum / maxLatency) * 100))
+              : Math.max(25, Math.round(((eng.accuracyNum - 85) / 15) * 100));
+
+            const topBadgeText = activeMetric === 'latency' ? eng.latency : eng.accuracy;
+            const Icon = eng.icon;
+
+            return (
+              <div key={eng.id} className="flex-1 flex flex-col items-center h-full justify-end group relative z-10">
+                {/* Metric Value Badge on Top */}
+                <div className="mb-2 text-center transition-all duration-200 group-hover:-translate-y-1">
+                  <span className={`inline-flex items-center gap-1 font-mono text-[11px] font-extrabold px-2 py-0.5 rounded-md shadow-xs ${eng.badgeBg}`}>
+                    {topBadgeText}
+                  </span>
+                </div>
+
+                {/* Vertical Bar */}
+                <div className="w-full max-w-[38px] sm:max-w-[46px] bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl overflow-hidden p-0.5 flex flex-col justify-end h-24">
+                  <div 
+                    style={{ height: `${heightPercent}%` }}
+                    className={`w-full rounded-t-lg bg-gradient-to-t ${eng.gradient} shadow-sm transition-all duration-700 group-hover:brightness-110 group-hover:scale-y-[1.02] origin-bottom`}
+                  ></div>
+                </div>
+
+                {/* X-Axis Label */}
+                <div className="mt-2 text-center w-full">
+                  <div className="flex items-center justify-center gap-1">
+                    <Icon className="w-3 h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200" />
+                    <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate font-sans">
+                      {eng.shortName}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 block truncate">
+                    {eng.type}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-xs font-mono">
-                <span className="text-slate-600 dark:text-slate-400 font-semibold">{b.latency}</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded text-[10px] border border-emerald-200 dark:border-emerald-800">
-                  {b.accuracy}
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Granular Engine Telemetry Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {engines.map((eng, idx) => {
+          const Icon = eng.icon;
+          const isLast = idx === engines.length - 1;
+          return (
+            <div 
+              key={eng.id}
+              className={`p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 flex items-center justify-between gap-2.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-xs ${
+                isLast ? 'sm:col-span-2' : ''
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${eng.badgeLight} border`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    {eng.name}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {eng.type} • {eng.throughput}
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-right flex-shrink-0 flex items-center gap-2">
+                <span className="font-mono text-xs font-extrabold text-slate-900 dark:text-white px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60" title="Execution Latency">
+                  {eng.latency}
+                </span>
+                <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800" title="Zero-Shot Entity Accuracy">
+                  {eng.accuracy}
                 </span>
               </div>
             </div>
-
-            {/* Latency Bar */}
-            <div className="w-full h-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 overflow-hidden">
-              <div 
-                style={{ width: `${b.latencyPct}%` }}
-                className="h-full bg-gradient-to-r from-[#1c3461] to-[#2f5fb0] rounded-full"
-              ></div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
