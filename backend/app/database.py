@@ -101,6 +101,11 @@ def init_db():
     )
     """)
 
+    # Indices for high speed search and duplicate lookups
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_docs_status ON documents(status)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_struct_inv_vendor ON structured_results(invoice_no, vendor)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_docs_filename ON documents(filename)")
+
     conn.commit()
 
     # Seed with initial records if empty

@@ -35,7 +35,11 @@ export default function Topbar({
       
       {/* Title & Breadcrumbs */}
       <div>
-        <div className="text-xs text-slate-400 font-medium">Document Operations</div>
+        <div className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
+          <span className="font-semibold text-[#1c3461] dark:text-sky-300">Cottage Home Care</span>
+          <span>•</span>
+          <span>Financial Document Operations</span>
+        </div>
         <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
           {getBreadcrumbTitle()}
         </h2>
@@ -57,8 +61,8 @@ export default function Topbar({
 
         {/* Quick Sample File Injector */}
         <div className="relative group">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
-            <Plus className="w-3.5 h-3.5 text-indigo-500" />
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors border border-slate-200/60 dark:border-slate-700">
+            <Plus className="w-3.5 h-3.5 text-[#e57824]" />
             <span>Inject Sample</span>
           </button>
           

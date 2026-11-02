@@ -35,34 +35,34 @@ export default function Dashboard({
     <div className="flex flex-col gap-8 pb-12">
       
       {/* Welcome Banner */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-indigo-900/60 via-slate-900 to-slate-950 border border-indigo-800/40 shadow-xl relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-[#1c3461] via-[#162a50] to-[#0c172d] border border-[#2f5fb0]/40 shadow-xl relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="relative z-10 max-w-xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Autonomous Intelligence Active</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#fff4d6] text-[#d06a16] border border-[#e57824]/30 mb-3 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-[#e57824]" />
+            <span className="font-sans font-bold">Cottage Care Intelligent Platform</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            AI-Powered Document Processing &amp; Verification
+          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
+            AI-Powered Document Processing &amp; Financial Reconciliation
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-            Multi-modal ingestion pipeline equipped with PyMuPDF, EasyOCR vision models, Gemini 2.5 Flash entity parsing, and 4-rule deterministic validation.
+          <p className="text-xs sm:text-sm text-slate-200/90 mt-2 leading-relaxed">
+            Autonomous ingestion pipeline with PyMuPDF, EasyOCR vision models, Gemini 3.5 Flash Lite entity parsing, deterministic 4-rule validation, and PDF-Excel cross-verification.
           </p>
         </div>
 
         <div className="relative z-10 flex items-center gap-3">
           <button
             onClick={onOpenUpload}
-            className="flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02]"
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-xs text-white bg-gradient-to-r from-[#e57824] to-[#f28c28] hover:from-[#d06a16] hover:to-[#e57824] shadow-lg shadow-[#e57824]/30 transition-all hover:scale-[1.02]"
           >
             <UploadCloud className="w-4 h-4" />
-            <span>Upload New Document</span>
+            <span>Upload Documents</span>
           </button>
           
           <button
             onClick={() => onSwitchTab('review_queue')}
-            className="flex items-center gap-2 px-4 py-3 rounded-2xl font-semibold text-xs bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 transition-all"
+            className="flex items-center gap-2 px-4 py-3 rounded-2xl font-semibold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all backdrop-blur-sm"
           >
-            <AlertTriangle className="w-4 h-4 text-rose-400" />
+            <AlertTriangle className="w-4 h-4 text-amber-300" />
             <span>Review Queue ({flagged})</span>
           </button>
         </div>

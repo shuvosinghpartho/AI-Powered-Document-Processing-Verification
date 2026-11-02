@@ -8,22 +8,33 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
+        cottage: {
+          navy: '#1c3461',
+          blue: '#2f5fb0',
+          blueLight: '#eef4ff',
+          orange: '#e57824',
+          orangeHover: '#d06a16',
+          orangeLight: '#fff4d6',
+          darkBg: '#090d16',
+          darkCard: '#101726',
+          darkBorder: '#1e293b'
+        },
         brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50: '#f0f5ff',
+          100: '#e5edff',
+          200: '#cce0ff',
+          300: '#99c2ff',
+          400: '#5c9aff',
+          500: '#2f5fb0',
+          600: '#1c3461',
+          700: '#16294d',
+          800: '#111f3b',
+          900: '#0c162a',
+          950: '#070c17',
         },
         slate: {
           850: '#151f32',

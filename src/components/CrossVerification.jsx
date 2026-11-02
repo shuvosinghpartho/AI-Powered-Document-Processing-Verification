@@ -255,17 +255,17 @@ export default function CrossVerification({
             className={`w-full py-3.5 px-4 rounded-2xl text-xs font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 ${
               isLoading || !docAId || !docBId
                 ? 'bg-slate-300 dark:bg-slate-800 cursor-not-allowed text-slate-500'
-                : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30 active:scale-95'
+                : 'bg-gradient-to-r from-[#1c3461] to-[#2f5fb0] hover:from-[#16294d] hover:to-[#264c8d] shadow-[#1c3461]/30 active:scale-95'
             }`}
           >
             {isLoading ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Comparing...</span>
+                <RefreshCw className="w-4 h-4 animate-spin text-amber-300" />
+                <span>Reconciling...</span>
               </>
             ) : (
               <>
-                <GitCompare className="w-4 h-4" />
+                <Scale className="w-4 h-4 text-amber-300" />
                 <span>Run Cross-Check</span>
               </>
             )}
@@ -423,3 +423,4 @@ export default function CrossVerification({
     </div>
   );
 }
+

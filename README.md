@@ -207,3 +207,96 @@ PYTHONPATH=backend .venv/bin/python backend/tests/evaluate_system.py
 - **Upload Size Limit**: 50MB file size ceiling prevents Denial-of-Service (DoS) abuse.
 - **SQLite WAL Mode**: `PRAGMA journal_mode=WAL` with a 30s lock timeout prevents database concurrency locking during simultaneous reads and background writes.
 - **Resilient Fallback Mode**: If external LLM API rate limits occur, the built-in deterministic regex extractor automatically extracts essential fields so the pipeline never halts.
+
+---
+
+## 🗄️ Database Schema & Entity Relationships
+
+The system utilizes an ACID-compliant SQLite relational database optimized with Write-Ahead Logging (`WAL`):
+
+### 1. `documents` (Master Document Registry)
+- `id` (TEXT, PK): Unique document identifier (e.g., `doc-101`)
+- `filename` (TEXT, NOT NULL): Sanitized original file name
+- `file_path` (TEXT): Absolute path to stored binary on disk
+- `format` (TEXT): High-level category (`PDF`, `IMAGE`, `EXCEL`, `CSV`)
+- `sub_type` (TEXT): Specific engine format descriptor
+- `size_kb` (INTEGER): File size in kilobytes
+- `engine` (TEXT): Extraction/OCR engine that processed document
+- `ocr_confidence` (REAL): Measured OCR confidence score (0.0 to 100.0)
+- `stage` (INTEGER): Current pipeline progress stage (1 to 5)
+- `progress` (INTEGER): Completion percentage (0 to 100)
+- `status` (TEXT): Validation status (`VALID`, `FLAGGED`, `PROCESSING`)
+- `upload_time` (TEXT): ISO timestamp
+- `semantic_tags_json` (TEXT): JSON array of semantic concepts
+
+### 2. `extracted_text` (Raw Text Ingested)
+- `doc_id` (TEXT, PK, FK -> documents.id): Document reference
+- `raw_text` (TEXT): Unstructured OCR stream or parsed text dump
+
+### 3. `structured_results` (Extracted Financial Entities)
+- `doc_id` (TEXT, PK, FK -> documents.id): Document reference
+- `doc_type` (TEXT): Document classification (e.g. Invoice, Receipt)
+- `invoice_no` (TEXT): Extracted reference/invoice identifier
+- `vendor` (TEXT): Extracted supplier or company name
+- `customer` (TEXT): Extracted bill-to recipient
+- `issue_date` (TEXT): Extracted date in `YYYY-MM-DD`
+- `currency` (TEXT): Currency symbol/code (USD, EUR, etc.)
+- `subtotal` (REAL): Subtotal numeric value
+- `tax` (REAL): Tax/VAT numeric value
+- `total` (REAL): Grand total numeric value
+- `line_items_json` (TEXT): Serialized array of `{ description, qty, unitPrice }`
+
+### 4. `validation_errors` (Audit Logs)
+- `id` (INTEGER, PK, AUTOINCREMENT)
+- `doc_id` (TEXT, FK -> documents.id)
+- `check_id` (TEXT): Unique rule key (`rule-missing`, `rule-numeric`, etc.)
+- `check_title` (TEXT): Readable rule name
+- `passed` (INTEGER): Boolean 1 (passed) or 0 (flagged)
+- `error_message` (TEXT): Explicit reason for discrepancy
+
+### 5. `processing_history` (Traceability & HITL Audit Trail)
+- `id` (INTEGER, PK, AUTOINCREMENT)
+- `doc_id` (TEXT, FK -> documents.id)
+- `timestamp` (TEXT)
+- `stage` (TEXT): Pipeline stage name
+- `engine` (TEXT): Processing engine or "Human Operator"
+- `detail` (TEXT): Descriptive execution action
+
+---
+
+## 🤖 AI Prompts & Development Disclosure
+
+### 1. Canonical Information Extraction Prompt
+```text
+You are an expert financial document intelligence system.
+Analyze the following document text and extract the structured invoice or receipt details.
+Return ONLY valid raw JSON with NO markdown code blocks, backticks, or preamble:
+{
+  "docType": "Invoice" | "Receipt" | "Spreadsheet" | "Utility Bill",
+  "invoiceNo": "Invoice or reference number, or empty string",
+  "vendor": "Supplier or vendor name, or empty string",
+  "customer": "Customer or bill-to recipient, or empty string",
+  "issueDate": "YYYY-MM-DD format if date found, or empty string",
+  "currency": "USD" | "EUR" | "GBP" | "BDT",
+  "subtotal": 0.0,
+  "tax": 0.0,
+  "total": 0.0,
+  "lineItems": [
+    {
+      "description": "Item description",
+      "qty": 1,
+      "unitPrice": 0.0
+    }
+  ]
+}
+
+STRICT INSTRUCTIONS:
+- Do NOT invent or hallucinate missing values.
+- Calculate exact numeric figures as floats.
+- Ensure all lineItems have description, qty, and unitPrice.
+```
+
+### 2. AI-Assisted Development Disclosure
+- **Assisted Tools**: Google Gemini Flash Lite for entity extraction; AI code assistance for rapid component scaffolding.
+- **Human Curation**: All validation algorithms, SQLite schema migrations, EasyOCR fallbacks, and reconciliation formulas are deterministic, rigorously tested, and maintain 100% human-in-the-loop auditability.
+
