@@ -49,10 +49,10 @@ export default function Dashboard({
           </p>
         </div>
 
-        <div className="relative z-10 flex items-center gap-3">
+        <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <button
             onClick={onOpenUpload}
-            className="flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-xs text-white bg-gradient-to-r from-[#e57824] to-[#f28c28] hover:from-[#d06a16] hover:to-[#e57824] shadow-lg shadow-[#e57824]/30 transition-all hover:scale-[1.02]"
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-bold text-xs text-white bg-gradient-to-r from-[#e57824] to-[#f28c28] hover:from-[#d06a16] hover:to-[#e57824] shadow-lg shadow-[#e57824]/30 transition-all hover:scale-[1.02] w-full sm:w-auto"
           >
             <UploadCloud className="w-4 h-4" />
             <span>Upload Documents</span>
@@ -60,7 +60,7 @@ export default function Dashboard({
           
           <button
             onClick={() => onSwitchTab('review_queue')}
-            className="flex items-center gap-2 px-4 py-3 rounded-2xl font-semibold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all backdrop-blur-sm"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-semibold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all backdrop-blur-sm w-full sm:w-auto"
           >
             <AlertTriangle className="w-4 h-4 text-amber-300" />
             <span>Review Queue ({flagged})</span>
@@ -189,7 +189,7 @@ export default function Dashboard({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+          <table className="w-full min-w-[720px] text-xs text-left">
             <thead className="bg-slate-100/90 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 uppercase text-[11px] font-bold tracking-wider">
               <tr>
                 <th className="py-3.5 px-6">Document Details</th>

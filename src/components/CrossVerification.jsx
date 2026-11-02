@@ -379,7 +379,7 @@ export default function CrossVerification({
 
           {/* Side-by-Side Field Comparison Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full min-w-[620px] text-xs text-left">
               <thead className="bg-slate-50 dark:bg-slate-950/40 border-b border-slate-100 dark:border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
                 <tr>
                   <th className="py-3 px-4">Verification Field</th>

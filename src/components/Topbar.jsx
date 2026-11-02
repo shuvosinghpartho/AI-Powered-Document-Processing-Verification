@@ -8,7 +8,8 @@ import {
   FileText, 
   CheckCircle2, 
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  Menu
 } from 'lucide-react';
 
 export default function Topbar({ 
@@ -16,7 +17,8 @@ export default function Topbar({
   theme, 
   onToggleTheme, 
   onOpenSearch, 
-  onAddPreset
+  onAddPreset,
+  onToggleMobileMenu = () => {}
 }) {
   const getPageMeta = () => {
     switch (currentTab) {
@@ -62,32 +64,52 @@ export default function Topbar({
   const meta = getPageMeta();
 
   return (
-    <header className="min-h-18 py-3.5 px-6 border-b flex items-center justify-between gap-4 sticky top-0 z-20 backdrop-blur-md bg-white/95 border-slate-200 dark:bg-[#090d16]/95 dark:border-slate-800/90 shadow-2xs">
+    <header className="min-h-16 md:min-h-18 py-3 px-4 sm:px-6 border-b flex items-center justify-between gap-3 sticky top-0 z-20 backdrop-blur-md bg-white/95 border-slate-200 dark:bg-[#090d16]/95 dark:border-slate-800/90 shadow-2xs">
       
-      {/* Title & Contextual Description */}
-      <div className="flex flex-col min-w-0 pr-4">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#d06a16] bg-[#fff4d6] dark:bg-[#e57824]/20 dark:text-[#f28c28] px-2 py-0.5 rounded-md border border-[#e57824]/30 font-sans">
-            {meta.badge}
-          </span>
-          <span className="text-[11px] font-bold text-[#1c3461] dark:text-sky-300 hidden sm:inline">
-            • Cottage Care Financial Platform
-          </span>
+      {/* Mobile Hamburger Menu Toggle + Title & Description */}
+      <div className="flex items-center gap-3 min-w-0 pr-2">
+        <button
+          onClick={onToggleMobileMenu}
+          className="flex md:hidden p-2 -ml-1 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex-shrink-0"
+          title="Open Navigation Menu"
+          aria-label="Open Navigation Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#d06a16] bg-[#fff4d6] dark:bg-[#e57824]/20 dark:text-[#f28c28] px-2 py-0.5 rounded-md border border-[#e57824]/30 font-sans">
+              {meta.badge}
+            </span>
+            <span className="text-[11px] font-bold text-[#1c3461] dark:text-sky-300 hidden sm:inline">
+              • Cottage Care Financial Platform
+            </span>
+          </div>
+          <h1 className="text-sm sm:text-base md:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight truncate mt-0.5">
+            {meta.title}
+          </h1>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate hidden md:block">
+            {meta.subtitle}
+          </p>
         </div>
-        <h1 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight truncate mt-0.5">
-          {meta.title}
-        </h1>
-        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate hidden md:block">
-          {meta.subtitle}
-        </p>
       </div>
 
       {/* Global Actions */}
-      <div className="flex items-center gap-3 flex-shrink-0">
-        {/* Search Bar Input Pill */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        {/* Mobile Search Icon Button (visible on <md) */}
         <button
           onClick={onOpenSearch}
-          className="hidden md:flex items-center gap-3 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-slate-100/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-600 text-xs transition-all w-60 justify-between shadow-2xs hover:shadow-xs group"
+          className="flex md:hidden p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shadow-2xs"
+          title="Search documents and vectors"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+
+        {/* Desktop Search Bar Input Pill */}
+        <button
+          onClick={onOpenSearch}
+          className="hidden md:flex items-center gap-3 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-slate-100/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-600 text-xs transition-all w-56 lg:w-64 justify-between shadow-2xs hover:shadow-xs group"
           title="Search documents and semantic vectors (⌘K)"
         >
           <div className="flex items-center gap-2">
@@ -99,12 +121,13 @@ export default function Topbar({
 
         {/* Quick Sample File Injector */}
         <div className="relative group">
-          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors border border-slate-300 dark:border-slate-700 shadow-2xs">
+          <button className="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors border border-slate-300 dark:border-slate-700 shadow-2xs">
             <Plus className="w-3.5 h-3.5 text-[#e57824] stroke-[2.5]" />
-            <span>Inject Sample</span>
+            <span className="hidden sm:inline">Inject Sample</span>
+            <span className="sm:hidden">Sample</span>
           </button>
           
-          <div className="absolute right-0 mt-1 w-68 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+          <div className="absolute right-0 mt-1 w-64 sm:w-68 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
             <div className="px-3.5 py-1 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
               Inject Test Document
             </div>

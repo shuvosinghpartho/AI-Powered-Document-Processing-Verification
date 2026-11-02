@@ -19,8 +19,8 @@ export default function FastApiModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-lg rounded-3xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl flex flex-col gap-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-4 sm:p-7 shadow-2xl flex flex-col gap-5 max-h-[92vh] overflow-y-auto">
         
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">

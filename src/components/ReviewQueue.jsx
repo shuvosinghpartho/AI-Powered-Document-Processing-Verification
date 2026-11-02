@@ -55,7 +55,7 @@ export default function ReviewQueue({
           </div>
         ) : (
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full min-w-[760px] text-xs text-left">
               <thead className="sticky top-0 z-10 bg-slate-100/95 dark:bg-[#0c1322]/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 uppercase text-[11px] font-bold tracking-wider shadow-xs">
                 <tr>
                   <th className="py-3.5 px-5">Document Details</th>

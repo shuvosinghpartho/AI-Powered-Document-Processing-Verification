@@ -42,10 +42,10 @@ export default function DocumentList({
     <div className="flex flex-col h-full min-h-0 gap-3.5">
       
       {/* Header & Filter Controls Bar (Spacious, Beautiful SaaS Controls) */}
-      <div className="p-4 sm:p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4 flex-shrink-0">
+      <div className="p-3.5 sm:p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 flex-shrink-0">
         
         {/* Search Input with high visibility & clear button */}
-        <div className="relative flex-1 min-w-[280px] max-w-lg">
+        <div className="relative flex-1 w-full lg:max-w-md">
           <Search className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -66,14 +66,14 @@ export default function DocumentList({
         </div>
 
         {/* Filters and CTA Group */}
-        <div className="flex flex-wrap items-center gap-3.5">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
           {/* Format Filter */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Format:</span>
+          <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex-shrink-0">Format:</span>
             <select
               value={formatFilter}
               onChange={(e) => setFormatFilter(e.target.value)}
-              className="h-11 px-3.5 text-xs font-semibold rounded-xl border bg-slate-50/80 dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:border-slate-400 dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2f5fb0] transition-all cursor-pointer shadow-xs"
+              className="h-11 px-3.5 text-xs font-semibold rounded-xl border bg-slate-50/80 dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:border-slate-400 dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2f5fb0] transition-all cursor-pointer shadow-xs w-full sm:w-auto"
             >
               <option value="ALL">All Formats</option>
               <option value="PDF">PDF Documents</option>
@@ -84,12 +84,12 @@ export default function DocumentList({
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Status:</span>
+          <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex-shrink-0">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-11 px-3.5 text-xs font-semibold rounded-xl border bg-slate-50/80 dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:border-slate-400 dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2f5fb0] transition-all cursor-pointer shadow-xs"
+              className="h-11 px-3.5 text-xs font-semibold rounded-xl border bg-slate-50/80 dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:border-slate-400 dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2f5fb0] transition-all cursor-pointer shadow-xs w-full sm:w-auto"
             >
               <option value="ALL">All Statuses</option>
               <option value="VALID">✓ Validated (Clean)</option>
@@ -101,7 +101,7 @@ export default function DocumentList({
           {/* Upload New CTA */}
           <button
             onClick={onOpenUpload}
-            className="h-11 px-5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#1c3461] to-[#2f5fb0] hover:from-[#16294d] hover:to-[#264c8d] text-white flex items-center gap-2 shadow-md shadow-[#1c3461]/25 hover:shadow-lg hover:shadow-[#1c3461]/35 transition-all ml-auto active:scale-95"
+            className="h-11 px-5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#1c3461] to-[#2f5fb0] hover:from-[#16294d] hover:to-[#264c8d] text-white flex items-center justify-center gap-2 shadow-md shadow-[#1c3461]/25 hover:shadow-lg hover:shadow-[#1c3461]/35 transition-all w-full sm:w-auto sm:ml-auto active:scale-95"
           >
             <Plus className="w-4 h-4 text-amber-300 stroke-[2.5]" />
             <span>Upload Document</span>
@@ -117,7 +117,7 @@ export default function DocumentList({
           </div>
         ) : (
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full min-w-[820px] text-xs text-left">
               <thead className="sticky top-0 z-10 bg-slate-100/95 dark:bg-[#0c1322]/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 uppercase text-[11px] font-bold tracking-wider shadow-xs">
                 <tr>
                   <th className="py-3.5 px-5">Document Name</th>

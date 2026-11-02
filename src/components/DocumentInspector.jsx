@@ -248,8 +248,8 @@ export default function DocumentInspector({
         {/* LEFT COLUMN: Visual Document & Raw Data (5 cols) */}
         <div className="lg:col-span-5 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
           {/* Subtabs */}
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-4 bg-slate-50/60 dark:bg-slate-950/40">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-4 bg-slate-50/60 dark:bg-slate-950/40 gap-2">
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none flex-1 min-w-0 py-1">
               {[
                 { id: 'preview', label: 'Visual Preview', icon: Eye },
                 { id: 'ocr', label: 'Raw OCR', icon: Code },
@@ -262,7 +262,7 @@ export default function DocumentInspector({
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-1.5 px-3 py-3 text-xs font-semibold border-b-2 transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all flex-shrink-0 whitespace-nowrap ${
                       isTabActive
                         ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
                         : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
@@ -411,7 +411,7 @@ export default function DocumentInspector({
 
             {activeTab === 'audit' && (
               <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left font-mono">
+                <table className="w-full min-w-[480px] text-xs text-left font-mono">
                   <thead>
                     <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 text-[10px] uppercase">
                       <th className="py-2.5">Time</th>
@@ -632,7 +632,7 @@ export default function DocumentInspector({
             </div>
 
             <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl">
-              <table className="w-full text-xs text-left">
+              <table className="w-full min-w-[540px] text-xs text-left">
                 <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase text-[10px]">
                   <tr>
                     <th className="py-3 px-4">Description</th>

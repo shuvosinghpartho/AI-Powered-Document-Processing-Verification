@@ -25,6 +25,7 @@ export default function App() {
   const [selectedDocId, setSelectedDocId] = useState('doc-102'); // start on flagged to inspect
   const [documents, setDocuments] = useState(INITIAL_DOCUMENTS);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Modals state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -499,16 +500,36 @@ export default function App() {
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#080c14] text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white">
       
-      {/* 1. SaaS Left Navigation Sidebar */}
+      {/* Mobile Drawer Backdrop Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 md:hidden transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* 1. SaaS Left Navigation Sidebar (Responsive Mobile Drawer + Desktop Collapsible) */}
       <Sidebar
         currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+        onSelectTab={(tab) => {
+          setCurrentTab(tab);
+          setIsMobileMenuOpen(false);
+        }}
         flaggedCount={flaggedCount}
         totalCount={documents.length}
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
-        onOpenUpload={() => setIsUploadOpen(true)}
-        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenUpload={() => {
+          setIsUploadOpen(true);
+          setIsMobileMenuOpen(false);
+        }}
+        onOpenSearch={() => {
+          setIsSearchOpen(true);
+          setIsMobileMenuOpen(false);
+        }}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
       />
 
       {/* Main Content Area */}
@@ -523,13 +544,14 @@ export default function App() {
           onOpenSearch={() => setIsSearchOpen(true)}
           onAddPreset={handleAddPreset}
           fastApiMode={fastApiConfig.mode}
+          onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
         />
 
         {/* 3. Spacious Viewport Body */}
         <main className={`flex-1 ${
           currentTab === 'documents' || currentTab === 'review_queue'
-            ? 'overflow-hidden flex flex-col p-4 sm:p-6'
-            : 'overflow-y-auto px-6 sm:px-8 py-8'
+            ? 'overflow-hidden flex flex-col p-2.5 sm:p-4 md:p-6'
+            : 'overflow-y-auto px-3.5 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8'
         } ambient-glow`}>
           <div className={`max-w-7xl mx-auto w-full ${
             currentTab === 'documents' || currentTab === 'review_queue'

@@ -45,6 +45,15 @@
   background: radial-gradient(circle at 50% 0%, rgba(47, 95, 176, 0.08), rgba(229, 120, 36, 0.02), transparent 70%);
 }
 
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* OCR Bounding Boxes */
 .ocr-bbox {
   position: relative;
