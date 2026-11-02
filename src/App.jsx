@@ -145,7 +145,7 @@ export default function App() {
   const handleReprocessDoc = async (docId) => {
     if (fastApiConfig.mode === 'live') {
       try {
-        addToast('Reprocessing through FastAPI & Gemini pipeline...', 'info');
+        addToast('Reprocessing document through validation pipeline...', 'info');
         const res = await fetch(`${fastApiConfig.baseUrl}/api/v1/documents/${docId}/reprocess`, {
           method: 'POST'
         });
@@ -263,7 +263,7 @@ export default function App() {
             status: 'PROCESSING',
             uploadTime: new Date().toLocaleTimeString(),
             semanticTags: ['pipeline-processing'],
-            extractedText: 'Processing document through PyMuPDF/EasyOCR & Gemini AI...',
+            extractedText: 'Processing document through extraction & validation pipeline...',
             data: { docType: 'Invoice', invoiceNo: 'Pending...', vendor: 'Extracting...', issueDate: '', currency: 'USD', subtotal: 0, tax: 0, total: 0, lineItems: [] },
             history: [{ time: new Date().toLocaleTimeString(), stage: 'Stage 1: Document Ingestion', engine: 'Upload Gateway', detail: `Registered ${item.filename}` }]
           }));
@@ -292,12 +292,12 @@ export default function App() {
 
                   if (st.progress >= 100) {
                     clearInterval(pollInterval);
-                    // Fetch full document with Gemini extracted JSON and validation checks
+                    // Fetch full document with extracted JSON and validation checks
                     const fRes = await fetch(`${fastApiConfig.baseUrl}/api/v1/documents/${docId}`);
                     if (fRes.ok) {
                       const fullDoc = await fRes.json();
                       setDocuments(prev => prev.map(d => d.id === docId ? fullDoc : d));
-                      addToast(`${docItem.filename} processed by Gemini AI!`, 'success');
+                      addToast(`${docItem.filename} processed successfully!`, 'success');
                     }
                   }
                 }
@@ -335,7 +335,7 @@ export default function App() {
         status: 'PROCESSING',
         uploadTime: new Date().toLocaleString(),
         semanticTags: ['uploaded document', file.name.toLowerCase()],
-        extractedText: `Extracted text stream from ${file.name}...\nProcessed with Gemini AI Pipeline.`,
+        extractedText: `Extracted text stream from ${file.name}...\nProcessed with Document Intelligence Pipeline.`,
         data: {
           docType: 'Invoice',
           invoiceNo: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -372,11 +372,11 @@ export default function App() {
     const time = new Date().toLocaleTimeString();
 
     if (type === 'test_invoices_batch') {
-      addToast('Dispatching EasyOCR batch on test-invoices folder...', 'info');
+      addToast('Dispatching batch on test-invoices folder...', 'info');
       fetch(`${fastApiConfig.baseUrl}/api/v1/test-invoices/ingest`, { method: 'POST' })
         .then(res => res.json())
         .then(enqueued => {
-          addToast(`Enqueued ${enqueued.length} images for EasyOCR & Gemini extraction!`, 'success');
+          addToast(`Enqueued ${enqueued.length} document(s) for extraction!`, 'success');
           // Poll and refresh repository
           let count = 0;
           const pollTimer = setInterval(async () => {
