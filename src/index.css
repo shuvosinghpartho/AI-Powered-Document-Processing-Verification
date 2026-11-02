@@ -45,6 +45,36 @@
   background: radial-gradient(circle at 50% 0%, rgba(47, 95, 176, 0.08), rgba(229, 120, 36, 0.02), transparent 70%);
 }
 
+/* Loading Screen Animation */
+@keyframes loading-progress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(10%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-loading-bar {
+  width: 60%;
+  animation: loading-progress 1.2s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.35s ease-out forwards;
+}
+
 /* Hide scrollbar utility */
 .scrollbar-none::-webkit-scrollbar {
   display: none;

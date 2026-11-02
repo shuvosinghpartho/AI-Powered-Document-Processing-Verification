@@ -10,6 +10,7 @@ import UploadModal from './components/UploadModal.jsx';
 import SearchPage from './components/SearchPage.jsx';
 import FastApiModal from './components/FastApiModal.jsx';
 import ToastContainer from './components/Toast.jsx';
+import { Sparkles } from 'lucide-react';
 
 import { 
   INITIAL_DOCUMENTS, 
@@ -21,6 +22,7 @@ export default function App() {
     return localStorage.getItem('docu_theme') || 'dark';
   });
 
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState('dashboard'); // 'dashboard', 'documents', 'review_queue', 'inspector'
   const [selectedDocId, setSelectedDocId] = useState('doc-102'); // start on flagged to inspect
   const [documents, setDocuments] = useState(INITIAL_DOCUMENTS);
@@ -49,12 +51,15 @@ export default function App() {
           if (Array.isArray(liveDocs) && liveDocs.length > 0) {
             setDocuments(liveDocs);
             setFastApiConfig(prev => ({ ...prev, mode: 'live' }));
-            addToast('Connected to FastAPI Live Backend & SQLite', 'success');
           }
         }
       } catch (err) {
         console.warn('FastAPI not reachable, using in-browser simulator:', err);
         setFastApiConfig(prev => ({ ...prev, mode: 'simulator' }));
+      } finally {
+        setTimeout(() => {
+          setIsInitialLoading(false);
+        }, 600);
       }
     }
     loadBackendDocuments();
@@ -497,6 +502,47 @@ export default function App() {
     addToast(`Injected test document: ${preset.filename}`, 'info');
     setTimeout(() => triggerPipeline(preset.id), 200);
   };
+
+  // Initial App / Backend Handshake Loading Splash Screen
+  if (isInitialLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#070b14] text-white select-none overflow-hidden animate-fadeIn">
+        {/* Ambient subtle glow background */}
+        <div className="absolute w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-[#1c3461]/40 via-[#2f5fb0]/25 to-[#e57824]/20 blur-3xl pointer-events-none animate-pulse"></div>
+
+        <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-sm">
+          {/* Logo / Emblem */}
+          <div className="relative mb-6">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-[#1c3461] via-[#2f5fb0] to-[#e57824] p-[2px] shadow-2xl shadow-[#2f5fb0]/30 animate-spin-slow">
+              <div className="w-full h-full bg-[#0b1220] rounded-[14px] flex items-center justify-center">
+                <Sparkles className="w-9 h-9 text-amber-300 animate-pulse" />
+              </div>
+            </div>
+            <span className="absolute -inset-2.5 rounded-3xl border border-[#2f5fb0]/30 animate-ping opacity-25"></span>
+          </div>
+
+          {/* Brand Typography */}
+          <h1 className="text-2xl font-extrabold tracking-tight font-sans text-white">
+            Cottage <span className="text-[#e57824]">Intellect</span>
+          </h1>
+          <p className="text-xs text-slate-400 font-medium mt-1">
+            AI-Powered Document Intelligence Platform
+          </p>
+
+          {/* Progress bar container */}
+          <div className="w-56 h-1.5 rounded-full bg-slate-800/80 overflow-hidden mt-6 relative border border-slate-700/50">
+            <div className="h-full bg-gradient-to-r from-[#1c3461] via-[#2f5fb0] to-[#e57824] rounded-full animate-loading-bar"></div>
+          </div>
+
+          {/* Live Engine Handshake Status */}
+          <div className="flex items-center gap-2 mt-4 text-[11px] font-mono text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Connecting to FastAPI Engine &amp; SQLite WAL...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#080c14] text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white">
