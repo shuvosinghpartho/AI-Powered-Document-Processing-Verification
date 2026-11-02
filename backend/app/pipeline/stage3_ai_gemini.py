@@ -3,6 +3,7 @@ import re
 import base64
 import os
 import urllib.request
+import uuid
 from datetime import datetime
 from typing import Dict, Any, List
 from app.config import settings
@@ -110,30 +111,14 @@ def extract_structured_csv(file_path: str, filename: str, raw_text: str = "") ->
                 tot_col = cols_lower[cand]
                 break
 
-        if not sub_row.empty and tot_col:
-            val = sub_row[tot_col].values[0]
-            subtotal = _parse_float(val)
-        if not tax_row.empty and tot_col:
-            val = tax_row[tot_col].values[0]
-            tax = _parse_float(val)
-        if not tot_row.empty and tot_col:
-            val = tot_row[tot_col].values[0]
-            total = _parse_float(val)
-
-        # If total still 0, aggregate from amount/total column
-        if total == 0.0 and tot_col:
-            numeric_series = pd.to_numeric(df[tot_col].astype(str).str.replace(r"[^\d.-]", "", regex=True), errors="coerce").dropna()
-            if not numeric_series.empty:
-                total = round(float(numeric_series.sum()), 2)
-                subtotal = total
-
         # Extract line items (ignoring subtotal/tax/total/metadata rows)
         qty_col = next((cols_lower[c] for c in ["qty", "quantity", "count"] if c in cols_lower), None)
         rate_col = next((cols_lower[c] for c in ["rate", "unit_price", "price", "unitprice"] if c in cols_lower), None)
         item_col = next((cols_lower[c] for c in ["item", "description", "product", "product_id", "job", "name"] if c in cols_lower), first_col)
 
         item_df = df[~df[first_col].astype(str).str.contains(r"^\s*(?:subtotal|tax|vat|total|invoice|vendor|date)", case=False, na=False)]
-        for _, row in item_df.head(20).iterrows():
+        sample_limit = 50 if len(item_df) > 50 else len(item_df)
+        for _, row in item_df.head(sample_limit).iterrows():
             desc = str(row[item_col]).strip()
             if not desc or desc.lower() == "nan":
                 continue
@@ -144,8 +129,32 @@ def extract_structured_csv(file_path: str, filename: str, raw_text: str = "") ->
             if rate_col and pd.notna(row[rate_col]):
                 p = _parse_float(row[rate_col], 0.0)
             elif tot_col and pd.notna(row[tot_col]):
-                p = _parse_float(row[tot_col], 0.0)
+                line_tot = _parse_float(row[tot_col], 0.0)
+                p = round(line_tot / q, 2) if q > 0 else line_tot
             line_items.append({"description": desc, "qty": q, "unitPrice": p})
+
+        # Calculate Subtotal
+        if not sub_row.empty and tot_col:
+            val = sub_row[tot_col].values[0]
+            subtotal = _parse_float(val)
+        elif line_items:
+            subtotal = round(sum(it["qty"] * it["unitPrice"] for it in line_items), 2)
+        elif tot_col:
+            numeric_series = pd.to_numeric(df[tot_col].astype(str).str.replace(r"[^\d.-]", "", regex=True), errors="coerce").dropna()
+            if not numeric_series.empty:
+                subtotal = round(float(numeric_series.sum()), 2)
+
+        # Calculate Tax
+        if not tax_row.empty and tot_col:
+            val = tax_row[tot_col].values[0]
+            tax = _parse_float(val)
+
+        # Calculate Total
+        if not tot_row.empty and tot_col:
+            val = tot_row[tot_col].values[0]
+            total = _parse_float(val)
+        else:
+            total = round(subtotal + tax, 2)
 
         # Columns for Vendor / Customer / Date / Invoice #
         if not vendor:
@@ -182,7 +191,7 @@ def extract_structured_csv(file_path: str, filename: str, raw_text: str = "") ->
                 if cand and cand.lower() != "nan":
                     invoice_no = cand
             if not invoice_no:
-                invoice_no = f"CSV-{abs(hash(filename)) % 100000:05d}"
+                invoice_no = f"INV-{uuid.uuid4().hex[:6].upper()}"
 
     data = {
         "docType": doc_type,
