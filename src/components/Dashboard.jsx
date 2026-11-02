@@ -195,12 +195,12 @@ export default function Dashboard({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full min-w-0">
         
         {/* Engine Latency & Accuracy Benchmark (6 cols) */}
-        <div className="lg:col-span-6 min-w-0 p-5 sm:p-6 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between overflow-hidden">
+        <div className="lg:col-span-6 w-full min-w-0 p-5 sm:p-7 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between overflow-hidden">
           <EngineBenchmarkChart />
         </div>
 
         {/* Validation Discrepancy Breakdown (6 cols) */}
-        <div className="lg:col-span-6 min-w-0 p-5 sm:p-6 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between overflow-hidden">
+        <div className="lg:col-span-6 w-full min-w-0 p-5 sm:p-7 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between overflow-hidden">
           <DiscrepancyTypeChart documents={documents} />
         </div>
       </div>
