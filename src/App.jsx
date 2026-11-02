@@ -602,12 +602,12 @@ export default function App() {
 
         {/* 3. Spacious Viewport Body */}
         <main className={`flex-1 ${
-          currentTab === 'documents' || currentTab === 'review_queue' || currentTab === 'search'
+          currentTab === 'documents' || currentTab === 'review_queue' || currentTab === 'search' || currentTab === 'inspector'
             ? 'overflow-hidden flex flex-col p-2.5 sm:p-4 md:p-6'
             : 'overflow-y-auto px-3.5 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8'
         } ambient-glow`}>
           <div className={`max-w-7xl mx-auto w-full ${
-            currentTab === 'documents' || currentTab === 'review_queue' || currentTab === 'search'
+            currentTab === 'documents' || currentTab === 'review_queue' || currentTab === 'search' || currentTab === 'inspector'
               ? 'h-full flex flex-col min-h-0'
               : ''
           }`}>

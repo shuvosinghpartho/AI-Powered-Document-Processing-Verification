@@ -178,11 +178,11 @@ export default function DocumentInspector({
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-12">
+    <div className="flex flex-col h-full min-h-0 gap-3 sm:gap-3.5">
       
       {/* Top Header & Breadcrumbs */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-6 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex-shrink-0">
+        <div className="flex items-center gap-3">
           <button
             onClick={onBack}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -193,14 +193,14 @@ export default function DocumentInspector({
 
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                 {doc.filename}
               </h2>
               <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                 {doc.format}
               </span>
             </div>
-            <div className="text-xs text-slate-400 mt-1 flex items-center gap-3 font-mono">
+            <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2.5 font-mono">
               <span>Engine: <strong className="text-slate-700 dark:text-slate-200">{doc.engine}</strong></span>
               <span>•</span>
               <span>Confidence: <strong className="text-indigo-500">{doc.ocrConfidence}%</strong></span>
@@ -211,10 +211,10 @@ export default function DocumentInspector({
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => onReprocess(doc.id)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
             <span>Reprocess AI</span>
@@ -222,7 +222,7 @@ export default function DocumentInspector({
 
           <button
             onClick={exportJson}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <Download className="w-3.5 h-3.5 text-slate-400" />
             <span>Export JSON</span>
@@ -230,7 +230,7 @@ export default function DocumentInspector({
 
           <button
             onClick={handleApprove}
-            className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white shadow-md transition-all ${
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold text-white shadow-md transition-all ${
               validation.passed 
                 ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30' 
                 : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
@@ -242,13 +242,13 @@ export default function DocumentInspector({
         </div>
       </div>
 
-      {/* Main Spacious Dual Split Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Spacious Dual Split Columns (Single Window Layout) */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch overflow-hidden">
         
         {/* LEFT COLUMN: Visual Document & Raw Data (5 cols) */}
-        <div className="lg:col-span-5 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
-          {/* Subtabs */}
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-4 bg-slate-50/60 dark:bg-slate-950/40 gap-2">
+        <div className="lg:col-span-5 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col min-h-0 overflow-hidden">
+          {/* Subtabs Header */}
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-3 bg-slate-50/60 dark:bg-slate-950/40 gap-2 flex-shrink-0">
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none flex-1 min-w-0 py-1">
               {[
                 { id: 'preview', label: 'Visual Preview', icon: Eye },
@@ -288,10 +288,10 @@ export default function DocumentInspector({
             )}
           </div>
 
-          {/* Subtab Contents */}
-          <div className="p-6">
+          {/* Subtab Contents (Internal Scroll) */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5">
             {activeTab === 'preview' && (
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-6 flex flex-col gap-5 font-mono text-xs shadow-inner">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-5 flex flex-col gap-4 font-mono text-xs shadow-inner">
                 {/* Header inside Document Visualizer */}
                 <div className="flex items-center justify-between pb-4 border-b border-dashed border-slate-300 dark:border-slate-800">
                   <div>
@@ -373,30 +373,30 @@ export default function DocumentInspector({
             )}
 
             {activeTab === 'ocr' && (
-              <div className="relative">
+              <div className="relative h-full">
                 <button
                   onClick={() => copyToClipboard(doc.extractedText, 'Raw OCR')}
-                  className="absolute right-3 top-3 px-2 py-1 text-[11px] font-semibold rounded bg-slate-800 text-slate-200 flex items-center gap-1 hover:bg-slate-700"
+                  className="absolute right-3 top-3 px-2 py-1 text-[11px] font-semibold rounded bg-slate-800 text-slate-200 flex items-center gap-1 hover:bg-slate-700 z-10"
                 >
                   <Copy className="w-3 h-3" />
                   <span>Copy</span>
                 </button>
-                <pre className="p-4 rounded-2xl bg-slate-950 text-slate-300 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[460px]">
+                <pre className="p-4 rounded-xl bg-slate-950 text-slate-300 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed h-full min-h-[350px]">
                   {doc.extractedText}
                 </pre>
               </div>
             )}
 
             {activeTab === 'json' && (
-              <div className="relative">
+              <div className="relative h-full">
                 <button
                   onClick={() => copyToClipboard(JSON.stringify(doc.data, null, 2), 'JSON')}
-                  className="absolute right-3 top-3 px-2 py-1 text-[11px] font-semibold rounded bg-slate-800 text-slate-200 flex items-center gap-1 hover:bg-slate-700"
+                  className="absolute right-3 top-3 px-2 py-1 text-[11px] font-semibold rounded bg-slate-800 text-slate-200 flex items-center gap-1 hover:bg-slate-700 z-10"
                 >
                   <Copy className="w-3 h-3" />
                   <span>Copy</span>
                 </button>
-                <pre className="p-4 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-xs overflow-x-auto max-h-[460px]">
+                <pre className="p-4 rounded-xl bg-slate-950 text-emerald-400 font-mono text-xs overflow-x-auto h-full min-h-[350px]">
                   {JSON.stringify({
                     extraction_model: 'gemini-3.5-flash-lite',
                     doc_id: doc.id,
@@ -437,38 +437,39 @@ export default function DocumentInspector({
         </div>
 
         {/* RIGHT COLUMN: Human-in-the-Loop Structured Form (7 cols) */}
-        <div className="lg:col-span-7 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8 flex flex-col gap-6">
+        <div className="lg:col-span-7 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col min-h-0 overflow-hidden">
           
-          {/* Header & Validation Alerts */}
-          <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  Extracted Entities &amp; Manual Verification
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Live verification checks update instantly as you edit values.
-                </p>
-              </div>
-
-              <div>
-                {validation.passed ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>VALIDATION PASSED</span>
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-900">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
-                    <span>FLAGGED ({validation.errors.length} Issues)</span>
-                  </span>
-                )}
-              </div>
+          {/* Header & Validation Alerts (Fixed at Top of Right Column) */}
+          <div className="p-3.5 sm:px-5 sm:py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 flex-shrink-0 bg-slate-50/50 dark:bg-slate-950/30">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Extracted Entities &amp; Manual Verification
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Live verification checks update instantly as you edit values.
+              </p>
             </div>
 
+            <div className="flex-shrink-0">
+              {validation.passed ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>VALIDATION PASSED</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-900">
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+                  <span>FLAGGED ({validation.errors.length} Issues)</span>
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Scrollable Form Body */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 flex flex-col gap-4">
             {/* Error Banner with Smart 1-Click Fixes */}
             {!validation.passed && (
-              <div className="mt-4 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-xs flex flex-col gap-3">
+              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-xs flex flex-col gap-2.5">
                 <div className="flex items-center gap-2 font-bold text-rose-800 dark:text-rose-300">
                   <AlertTriangle className="w-4 h-4 text-rose-500" />
                   <span>Discrepancies Detected by Rule Engine:</span>
@@ -502,10 +503,9 @@ export default function DocumentInspector({
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Spacious Editable Form Fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {/* Spacious Editable Form Fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Classification
@@ -726,6 +726,7 @@ export default function DocumentInspector({
         </div>
       </div>
     </div>
+  </div>
   );
 }
 
