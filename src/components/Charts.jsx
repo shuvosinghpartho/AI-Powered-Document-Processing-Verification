@@ -354,16 +354,16 @@ export function EngineBenchmarkChart() {
         </div>
 
         {/* Chart Column Canvas */}
-        <div className="h-40 w-full pt-4 pb-1 px-1 sm:px-2 flex items-end justify-between gap-1 sm:gap-2 relative min-w-0">
+        <div className="h-48 w-full pt-4 pb-2 px-1 sm:px-2 flex items-end justify-between gap-1.5 sm:gap-2.5 relative min-w-0">
           {/* Reference Guideline Grid */}
-          <div className="absolute left-1 right-1 top-4 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
-          <div className="absolute left-1 right-1 top-14 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
-          <div className="absolute left-1 right-1 top-24 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute left-1 right-1 top-8 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute left-1 right-1 top-20 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute left-1 right-1 top-32 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
 
           {engines.map((eng) => {
             const heightPercent = activeMetric === 'latency'
-              ? Math.max(16, Math.round((eng.latencyNum / maxLatency) * 100))
-              : Math.max(25, Math.round(((eng.accuracyNum - 85) / 15) * 100));
+              ? Math.max(14, Math.round((eng.latencyNum / maxLatency) * 100))
+              : Math.max(20, Math.round(((eng.accuracyNum - 85) / 15) * 100));
 
             const topBadgeText = activeMetric === 'latency' ? eng.latency : eng.accuracy;
             const Icon = eng.icon;
@@ -372,21 +372,21 @@ export function EngineBenchmarkChart() {
               <div key={eng.id} className="flex-1 min-w-0 flex flex-col items-center h-full justify-end group relative z-10 px-0.5">
                 {/* Metric Value Badge on Top */}
                 <div className="mb-2 text-center transition-all duration-200 group-hover:-translate-y-1">
-                  <span className={`inline-flex items-center font-mono text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded shadow-xs ${eng.badgeBg} whitespace-nowrap`}>
+                  <span className={`inline-flex items-center font-mono text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded shadow-sm ${eng.badgeBg} whitespace-nowrap`}>
                     {topBadgeText}
                   </span>
                 </div>
 
-                {/* Vertical Bar */}
-                <div className="w-full max-w-[30px] sm:max-w-[40px] bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl overflow-hidden p-0.5 flex flex-col justify-end h-22">
+                {/* Vertical Bar Track & Column */}
+                <div className="w-full max-w-[32px] sm:max-w-[42px] h-28 bg-slate-100 dark:bg-slate-800/80 rounded-t-xl overflow-hidden p-0.5 flex flex-col justify-end border border-slate-200/60 dark:border-slate-700/60">
                   <div 
                     style={{ height: `${heightPercent}%` }}
-                    className={`w-full rounded-t-lg bg-gradient-to-t ${eng.gradient} shadow-sm transition-all duration-700 group-hover:brightness-110 group-hover:scale-y-[1.02] origin-bottom`}
+                    className={`w-full rounded-t-lg bg-gradient-to-t ${eng.gradient} shadow-md transition-all duration-700 group-hover:brightness-110 group-hover:scale-y-[1.02] origin-bottom`}
                   ></div>
                 </div>
 
                 {/* X-Axis Label */}
-                <div className="mt-1.5 text-center w-full min-w-0 overflow-hidden px-0.5">
+                <div className="mt-2 text-center w-full min-w-0 overflow-hidden px-0.5">
                   <div className="flex items-center justify-center gap-0.5 min-w-0">
                     <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 flex-shrink-0" />
                     <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate font-sans block">
@@ -586,34 +586,34 @@ export function DiscrepancyTypeChart({ documents = [] }) {
         </div>
 
         {/* Chart Column Canvas */}
-        <div className="h-40 w-full pt-4 pb-1 px-1 sm:px-2 flex items-end justify-between gap-1.5 sm:gap-2.5 relative min-w-0">
+        <div className="h-48 w-full pt-4 pb-2 px-1 sm:px-2 flex items-end justify-between gap-1.5 sm:gap-2.5 relative min-w-0">
           {/* Reference Guideline Grid */}
-          <div className="absolute left-1 right-1 top-4 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
-          <div className="absolute left-1 right-1 top-14 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
-          <div className="absolute left-1 right-1 top-24 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute left-1 right-1 top-8 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute left-1 right-1 top-20 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
+          <div className="absolute left-1 right-1 top-32 border-b border-dashed border-slate-200/70 dark:border-slate-800/80 pointer-events-none"></div>
 
           {categories.map((cat) => {
-            const heightPercent = Math.max(14, Math.round((cat.count / maxCount) * 100));
+            const heightPercent = Math.max(12, Math.round((cat.count / maxCount) * 100));
             const Icon = cat.icon;
             return (
               <div key={cat.id} className="flex-1 min-w-0 flex flex-col items-center h-full justify-end group relative z-10 px-0.5">
                 {/* Count Pill on Top of Bar */}
                 <div className="mb-2 text-center transition-all duration-200 group-hover:-translate-y-1">
-                  <span className={`inline-flex items-center font-mono text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded shadow-xs ${cat.badgeBg} whitespace-nowrap`}>
+                  <span className={`inline-flex items-center font-mono text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded shadow-sm ${cat.badgeBg} whitespace-nowrap`}>
                     {cat.count} {cat.count === 1 ? 'doc' : 'docs'}
                   </span>
                 </div>
 
-                {/* Vertical Bar */}
-                <div className="w-full max-w-[34px] sm:max-w-[44px] bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl overflow-hidden p-0.5 flex flex-col justify-end h-22">
+                {/* Vertical Bar Track & Column */}
+                <div className="w-full max-w-[34px] sm:max-w-[44px] h-28 bg-slate-100 dark:bg-slate-800/80 rounded-t-xl overflow-hidden p-0.5 flex flex-col justify-end border border-slate-200/60 dark:border-slate-700/60">
                   <div 
                     style={{ height: `${heightPercent}%` }}
-                    className={`w-full rounded-t-lg bg-gradient-to-t ${cat.gradient} shadow-sm transition-all duration-700 group-hover:brightness-110 group-hover:scale-y-[1.02] origin-bottom`}
+                    className={`w-full rounded-t-lg bg-gradient-to-t ${cat.gradient} shadow-md transition-all duration-700 group-hover:brightness-110 group-hover:scale-y-[1.02] origin-bottom`}
                   ></div>
                 </div>
 
                 {/* X-Axis Label */}
-                <div className="mt-1.5 text-center w-full min-w-0 overflow-hidden px-0.5">
+                <div className="mt-2 text-center w-full min-w-0 overflow-hidden px-0.5">
                   <div className="flex items-center justify-center gap-0.5 min-w-0">
                     <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 flex-shrink-0" />
                     <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate font-sans block">
