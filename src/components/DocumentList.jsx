@@ -39,31 +39,31 @@ export default function DocumentList({
   }, [documents, search, formatFilter, statusFilter]);
 
   return (
-    <div className="flex flex-col gap-6 pb-12">
+    <div className="flex flex-col h-full min-h-0 gap-3.5">
       
       {/* Header & Filter Controls Bar */}
-      <div className="p-6 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 flex-shrink-0">
         
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
           <input
             type="text"
             placeholder="Search repository by filename, vendor, invoice #..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-10 pr-4 text-xs rounded-xl border bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full h-9.5 pl-10 pr-4 text-xs rounded-xl border bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2f5fb0]"
           />
         </div>
 
         {/* Filters Group */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400">Format:</span>
+            <span className="text-slate-400 font-medium">Format:</span>
             <select
               value={formatFilter}
               onChange={(e) => setFormatFilter(e.target.value)}
-              className="h-10 px-3 text-xs rounded-xl border bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="h-9.5 px-3 text-xs rounded-xl border bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2f5fb0]"
             >
               <option value="ALL">All Formats</option>
               <option value="PDF">PDF</option>
@@ -74,11 +74,11 @@ export default function DocumentList({
           </div>
 
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400">Status:</span>
+            <span className="text-slate-400 font-medium">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-10 px-3 text-xs rounded-xl border bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="h-9.5 px-3 text-xs rounded-xl border bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2f5fb0]"
             >
               <option value="ALL">All Statuses</option>
               <option value="VALID">Validated Only</option>
@@ -89,43 +89,43 @@ export default function DocumentList({
 
           <button
             onClick={onOpenUpload}
-            className="h-10 px-4 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-sm shadow-indigo-600/30 transition-all ml-auto"
+            className="h-9.5 px-4 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#1c3461] to-[#2f5fb0] hover:from-[#16294d] hover:to-[#264c8d] text-white flex items-center gap-1.5 shadow-sm shadow-[#1c3461]/25 transition-all ml-auto"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-amber-300" />
             <span>Upload New</span>
           </button>
         </div>
       </div>
 
-      {/* Main Repository Table */}
-      <div className="rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      {/* Main Repository Table (Single Window Card with Internal Scroll) */}
+      <div className="flex-1 min-h-0 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
         {filteredDocs.length === 0 ? (
-          <div className="p-16 text-center text-slate-400">
+          <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-400">
             No matching documents found in repository.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
             <table className="w-full text-xs text-left">
-              <thead className="bg-slate-50/70 dark:bg-slate-950/40 border-b border-slate-100 dark:border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+              <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-[#0c1322]/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider shadow-sm">
                 <tr>
-                  <th className="py-4 px-6">Document Name</th>
-                  <th className="py-4 px-6">Classification</th>
-                  <th className="py-4 px-6">Invoice #</th>
-                  <th className="py-4 px-6">Vendor Entity</th>
-                  <th className="py-4 px-6 text-right">Extracted Total</th>
-                  <th className="py-4 px-6 text-center">Confidence</th>
-                  <th className="py-4 px-6 text-center">Status</th>
-                  <th className="py-4 px-6 text-right">Action</th>
+                  <th className="py-3.5 px-5">Document Name</th>
+                  <th className="py-3.5 px-5">Classification</th>
+                  <th className="py-3.5 px-5">Invoice #</th>
+                  <th className="py-3.5 px-5">Vendor Entity</th>
+                  <th className="py-3.5 px-5 text-right">Extracted Total</th>
+                  <th className="py-3.5 px-5 text-center">Confidence</th>
+                  <th className="py-3.5 px-5 text-center">Status</th>
+                  <th className="py-3.5 px-5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 font-mono">
                 {filteredDocs.map(doc => {
                   const isValid = doc.status === 'VALID';
                   const isFlagged = doc.status === 'FLAGGED';
 
                   return (
                     <tr key={doc.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="py-4 px-6 font-sans">
+                      <td className="py-3.5 px-5 font-sans">
                         <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                           <span>{doc.filename}</span>
                           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">
@@ -137,11 +137,11 @@ export default function DocumentList({
                         </div>
                       </td>
 
-                      <td className="py-4 px-6 font-sans text-slate-700 dark:text-slate-300">
+                      <td className="py-3.5 px-5 font-sans text-slate-700 dark:text-slate-300">
                         {doc.data?.docType || 'Document'}
                       </td>
 
-                      <td className="py-4 px-6">
+                      <td className="py-3.5 px-5">
                         {doc.data?.invoiceNo ? (
                           <span className="font-semibold text-slate-700 dark:text-slate-300">{doc.data.invoiceNo}</span>
                         ) : (
@@ -149,24 +149,24 @@ export default function DocumentList({
                         )}
                       </td>
 
-                      <td className="py-4 px-6 font-sans text-slate-700 dark:text-slate-300">
+                      <td className="py-3.5 px-5 font-sans text-slate-700 dark:text-slate-300">
                         <div className="font-medium">{doc.data?.vendor || '—'}</div>
                         {doc.data?.customer && (
                           <div className="text-[10px] text-slate-400">To: {doc.data.customer}</div>
                         )}
                       </td>
 
-                      <td className="py-4 px-6 text-right font-bold text-slate-900 dark:text-white">
+                      <td className="py-3.5 px-5 text-right font-bold text-slate-900 dark:text-white">
                         ${Number(doc.data?.total || 0).toFixed(2)}
                       </td>
 
-                      <td className="py-4 px-6 text-center">
+                      <td className="py-3.5 px-5 text-center">
                         <div className="inline-flex items-center gap-1.5">
-                          <span className="text-indigo-500 font-semibold">{doc.ocrConfidence}%</span>
+                          <span className="text-[#2f5fb0] dark:text-sky-400 font-semibold">{doc.ocrConfidence}%</span>
                         </div>
                       </td>
 
-                      <td className="py-4 px-6 text-center font-sans">
+                      <td className="py-3.5 px-5 text-center font-sans">
                         {isValid ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                             <CheckCircle2 className="w-3 h-3 text-emerald-500" />
@@ -185,7 +185,7 @@ export default function DocumentList({
                         )}
                       </td>
 
-                      <td className="py-4 px-6 text-right font-sans">
+                      <td className="py-3.5 px-5 text-right font-sans">
                         <button
                           onClick={() => onSelectDoc(doc.id)}
                           className="px-3.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors inline-flex items-center gap-1.5"
@@ -201,6 +201,17 @@ export default function DocumentList({
             </table>
           </div>
         )}
+
+        {/* Single Window Sticky Footer Summary */}
+        <div className="py-2.5 px-5 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-950/60 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Showing <strong className="text-slate-800 dark:text-slate-200">{filteredDocs.length}</strong> of <strong className="text-slate-800 dark:text-slate-200">{documents.length}</strong> repository records</span>
+          </div>
+          <div className="text-[10px] font-mono text-slate-400">
+            Single-Window Mode &bull; Mouse scroll inside table
+          </div>
+        </div>
       </div>
     </div>
   );

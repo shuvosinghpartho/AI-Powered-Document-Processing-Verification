@@ -525,9 +525,17 @@ export default function App() {
           fastApiMode={fastApiConfig.mode}
         />
 
-        {/* 3. Spacious Scrollable Body View */}
-        <main className="flex-1 overflow-y-auto px-6 sm:px-8 py-8 ambient-glow">
-          <div className="max-w-7xl mx-auto">
+        {/* 3. Spacious Viewport Body */}
+        <main className={`flex-1 ${
+          currentTab === 'documents' || currentTab === 'review_queue'
+            ? 'overflow-hidden flex flex-col p-4 sm:p-6'
+            : 'overflow-y-auto px-6 sm:px-8 py-8'
+        } ambient-glow`}>
+          <div className={`max-w-7xl mx-auto w-full ${
+            currentTab === 'documents' || currentTab === 'review_queue'
+              ? 'h-full flex flex-col min-h-0'
+              : ''
+          }`}>
             {currentTab === 'dashboard' && (
               <Dashboard
                 documents={documents}
