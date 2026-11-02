@@ -3,125 +3,152 @@ import {
   Search, 
   Sun, 
   Moon, 
-  Settings, 
   Plus, 
   Sparkles, 
   FileText, 
   CheckCircle2, 
-  Bell 
+  ShieldAlert,
+  ArrowRight
 } from 'lucide-react';
 
 export default function Topbar({ 
   currentTab, 
   theme, 
   onToggleTheme, 
-  onOpenFastApi, 
   onOpenSearch, 
-  onAddPreset,
-  fastApiMode = 'simulator'
+  onAddPreset
 }) {
-  const getBreadcrumbTitle = () => {
+  const getPageMeta = () => {
     switch (currentTab) {
-      case 'dashboard': return 'Executive Overview & Analytics';
-      case 'documents': return 'Documents Repository & Processing Queue';
-      case 'review_queue': return 'Human-in-the-Loop Review Queue';
-      case 'cross_verification': return 'Cross-Document Verification & Financial Reconciliation';
-      default: return 'Document Intelligence Workspace';
+      case 'dashboard':
+        return {
+          title: 'Executive Financial Intelligence',
+          subtitle: 'Real-time document ingestion throughput, OCR confidence metrics & deterministic validation health',
+          badge: 'Overview & Analytics'
+        };
+      case 'documents':
+        return {
+          title: 'Documents Repository & Processing Queue',
+          subtitle: 'Multi-format digital PDFs, EasyOCR vision scans, Excel workbooks & delimited CSV data streams',
+          badge: 'Master Ingestion Queue'
+        };
+      case 'review_queue':
+        return {
+          title: 'Human-in-the-Loop Review & Discrepancy Triage',
+          subtitle: 'Audit mathematical calculation mismatches, missing required fields & duplicate invoice flags',
+          badge: 'Triage Center'
+        };
+      case 'cross_verification':
+        return {
+          title: 'Cross-Document Verification & Financial Reconciliation',
+          subtitle: 'Autonomous PDF-to-PDF & PDF-to-Excel multi-document reconciliation and variance analysis',
+          badge: 'Reconciliation Engine'
+        };
+      case 'inspector':
+        return {
+          title: 'Document Inspector & Entity Correction Studio',
+          subtitle: 'Visual side-by-side inspection, raw OCR stream inspection, manual editing & audit committing',
+          badge: 'Audit & Correction'
+        };
+      default:
+        return {
+          title: 'AI Document Intelligence System',
+          subtitle: 'Enterprise multi-modal document extraction and financial verification platform',
+          badge: 'DocuIntellect AI'
+        };
     }
   };
 
+  const meta = getPageMeta();
+
   return (
-    <header className="h-16 px-6 border-b flex items-center justify-between gap-4 sticky top-0 z-20 backdrop-blur-md bg-white/90 border-slate-200 dark:bg-[#080c14]/90 dark:border-slate-800/80">
+    <header className="min-h-18 py-3.5 px-6 border-b flex items-center justify-between gap-4 sticky top-0 z-20 backdrop-blur-md bg-white/95 border-slate-200 dark:bg-[#090d16]/95 dark:border-slate-800/90 shadow-2xs">
       
-      {/* Title & Breadcrumbs */}
-      <div>
-        <div className="text-[11px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-          <span className="font-bold text-[#1c3461] dark:text-sky-300">Cottage Home Care</span>
-          <span>•</span>
-          <span>Financial Document Operations</span>
+      {/* Title & Contextual Description */}
+      <div className="flex flex-col min-w-0 pr-4">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#d06a16] bg-[#fff4d6] dark:bg-[#e57824]/20 dark:text-[#f28c28] px-2 py-0.5 rounded-md border border-[#e57824]/30 font-sans">
+            {meta.badge}
+          </span>
+          <span className="text-[11px] font-bold text-[#1c3461] dark:text-sky-300 hidden sm:inline">
+            • Cottage Care Financial Platform
+          </span>
         </div>
-        <h2 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
-          {getBreadcrumbTitle()}
-        </h2>
+        <h1 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight truncate mt-0.5">
+          {meta.title}
+        </h1>
+        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate hidden md:block">
+          {meta.subtitle}
+        </p>
       </div>
 
       {/* Global Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-shrink-0">
         {/* Search Bar Input Pill */}
         <button
           onClick={onOpenSearch}
-          className="hidden md:flex items-center gap-3 px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-400 dark:hover:border-slate-700 text-xs transition-all w-64 justify-between shadow-2xs"
+          className="hidden md:flex items-center gap-3 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-slate-100/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-600 text-xs transition-all w-60 justify-between shadow-2xs hover:shadow-xs group"
+          title="Search documents and semantic vectors (⌘K)"
         >
           <div className="flex items-center gap-2">
-            <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-            <span className="font-medium">Search documents or concepts...</span>
+            <Search className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#2f5fb0] dark:text-slate-400 transition-colors" />
+            <span className="font-semibold text-slate-700 dark:text-slate-300">Search &amp; Vectors...</span>
           </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 font-bold">⌘K</kbd>
+          <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold shadow-2xs">⌘K</kbd>
         </button>
 
         {/* Quick Sample File Injector */}
         <div className="relative group">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors border border-slate-200/60 dark:border-slate-700">
-            <Plus className="w-3.5 h-3.5 text-[#e57824]" />
+          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors border border-slate-300 dark:border-slate-700 shadow-2xs">
+            <Plus className="w-3.5 h-3.5 text-[#e57824] stroke-[2.5]" />
             <span>Inject Sample</span>
           </button>
           
-          <div className="absolute right-0 mt-1 w-64 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-            <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <div className="absolute right-0 mt-1 w-68 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+            <div className="px-3.5 py-1 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
               Inject Test Document
             </div>
             <button
               onClick={() => onAddPreset('flagged_math')}
-              className="w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+              className="w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></span>
               <div>
-                <div className="font-semibold">Receipt (Math Discrepancy)</div>
-                <div className="text-[10px] text-slate-400">Smudge on total amount</div>
+                <div className="font-bold text-slate-900 dark:text-white">Receipt (Math Discrepancy)</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">Total doesn't match subtotal + tax</div>
               </div>
             </button>
             <button
               onClick={() => onAddPreset('flagged_missing')}
-              className="w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+              className="w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></span>
               <div>
-                <div className="font-semibold">CSV Log (Missing Invoice #)</div>
-                <div className="text-[10px] text-slate-400">Blank mandatory field</div>
+                <div className="font-bold text-slate-900 dark:text-white">CSV Log (Missing Invoice #)</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">Mandatory reference empty</div>
               </div>
             </button>
             <button
               onClick={() => onAddPreset('clean_pdf')}
-              className="w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+              className="w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
               <div>
-                <div className="font-semibold">Clean Digital PDF</div>
-                <div className="text-[10px] text-slate-400">100% verification pass</div>
+                <div className="font-bold text-slate-900 dark:text-white">Clean Digital PDF</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">100% calculation pass</div>
               </div>
             </button>
           </div>
         </div>
 
-        {/* FastAPI Status Button */}
-        <button
-          onClick={onOpenFastApi}
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="Configure FastAPI Server"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"></span>
-          <span>{fastApiMode === 'live' ? 'FastAPI Live' : 'FastAPI: Simulator'}</span>
-          <Settings className="w-3.5 h-3.5 text-slate-400" />
-        </button>
-
         {/* Dark/Light Theme Toggle */}
         <button
           onClick={onToggleTheme}
-          className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-2xs"
           title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
           aria-label="Toggle Theme"
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
         </button>
       </div>
     </header>
