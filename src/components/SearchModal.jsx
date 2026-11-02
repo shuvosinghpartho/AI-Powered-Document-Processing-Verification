@@ -25,12 +25,12 @@ export default function SearchModal({
   const [mode, setMode] = useState('semantic'); // 'semantic', 'keyword'
 
   const conceptPresets = [
-    { label: '☁️ GPU & Cloud Pods', prompt: 'GPU inference server pod cloud hosting' },
-    { label: '⚠️ Math Error', prompt: 'math calculation discrepancy smudge total error' },
-    { label: '🖥️ Hardware & Displays', prompt: '4K UltraSharp monitor hardware desk mount' },
-    { label: '📄 Clean Digital Invoices', prompt: 'clean digital invoice Nimbus DeepCompute' },
-    { label: '📊 Excel & CSV Data', prompt: 'spreadsheet workbook tabular seat licenses' },
-    { label: '🚚 Freight & Logistics', prompt: 'freight shipping dispatch cargo' }
+    { label: 'GPU & Cloud Pods', prompt: 'GPU inference server pod cloud hosting' },
+    { label: 'Math Error', prompt: 'math calculation discrepancy smudge total error' },
+    { label: 'Hardware & Displays', prompt: '4K UltraSharp monitor hardware desk mount' },
+    { label: 'Clean Digital Invoices', prompt: 'clean digital invoice Nimbus DeepCompute' },
+    { label: 'Excel & CSV Data', prompt: 'spreadsheet workbook tabular seat licenses' },
+    { label: 'Freight & Logistics', prompt: 'freight shipping dispatch cargo' }
   ];
 
   const results = useMemo(() => {

@@ -46,6 +46,12 @@ export default function Topbar({
           subtitle: 'Autonomous PDF-to-PDF & PDF-to-Excel multi-document reconciliation and variance analysis',
           badge: 'Reconciliation Engine'
         };
+      case 'search':
+        return {
+          title: 'Vector & Semantic Intelligence Search',
+          subtitle: 'Natural language semantic embeddings & high-speed SQL keyword matching archive',
+          badge: 'Vector Intelligence'
+        };
       case 'inspector':
         return {
           title: 'Document Inspector & Entity Correction Studio',

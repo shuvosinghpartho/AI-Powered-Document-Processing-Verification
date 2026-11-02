@@ -7,7 +7,7 @@ import DocumentInspector from './components/DocumentInspector.jsx';
 import ReviewQueue from './components/ReviewQueue.jsx';
 import CrossVerification from './components/CrossVerification.jsx';
 import UploadModal from './components/UploadModal.jsx';
-import SearchModal from './components/SearchModal.jsx';
+import SearchPage from './components/SearchPage.jsx';
 import FastApiModal from './components/FastApiModal.jsx';
 import ToastContainer from './components/Toast.jsx';
 
@@ -73,12 +73,13 @@ export default function App() {
     localStorage.setItem('docu_theme', theme);
   }, [theme]);
 
-  // Keyboard Shortcut: Cmd/Ctrl + K opens search
+  // Keyboard Shortcut: Cmd/Ctrl + K opens search page
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsSearchOpen(true);
+        setCurrentTab('search');
+        setIsMobileMenuOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -525,7 +526,7 @@ export default function App() {
           setIsMobileMenuOpen(false);
         }}
         onOpenSearch={() => {
-          setIsSearchOpen(true);
+          setCurrentTab('search');
           setIsMobileMenuOpen(false);
         }}
         isMobileOpen={isMobileMenuOpen}
@@ -541,7 +542,7 @@ export default function App() {
           theme={theme}
           onToggleTheme={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
           onOpenFastApi={() => setIsFastApiOpen(true)}
-          onOpenSearch={() => setIsSearchOpen(true)}
+          onOpenSearch={() => setCurrentTab('search')}
           onAddPreset={handleAddPreset}
           fastApiMode={fastApiConfig.mode}
           onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
@@ -590,6 +591,13 @@ export default function App() {
               />
             )}
 
+            {currentTab === 'search' && (
+              <SearchPage
+                documents={documents}
+                onSelectDoc={handleInspectDoc}
+              />
+            )}
+
             {currentTab === 'inspector' && (
               <DocumentInspector
                 document={selectedDoc}
@@ -610,13 +618,6 @@ export default function App() {
         onClose={() => setIsUploadOpen(false)}
         onUploadFiles={handleUploadFiles}
         onAddPreset={handleAddPreset}
-      />
-
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        documents={documents}
-        onSelectDoc={handleInspectDoc}
       />
 
       <FastApiModal

@@ -32,6 +32,7 @@ export default function Sidebar({
     { id: 'documents', label: 'Documents Repository', icon: Files, badge: totalCount },
     { id: 'review_queue', label: 'Flagged Review Queue', icon: AlertTriangle, badge: flaggedCount, badgeColor: 'bg-rose-500 text-white' },
     { id: 'cross_verification', label: 'PDF-Excel Cross Verify', icon: GitCompare },
+    { id: 'search', label: 'Vector & Semantic Search', icon: Search },
   ];
 
   return (
@@ -127,21 +128,6 @@ export default function Sidebar({
               </button>
             );
           })}
-
-          {/* Quick Action Shortcut: Global Search */}
-          <button
-            onClick={() => { onOpenSearch(); onCloseMobile(); }}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-950 dark:hover:text-white transition-all mt-1"
-            title="AI Semantic Search"
-          >
-            <div className="flex items-center gap-3">
-              <Search className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-              {(!isCollapsed || isMobileOpen) && <span>Search &amp; Vectors</span>}
-            </div>
-            {(!isCollapsed || isMobileOpen) && (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">⌘K</span>
-            )}
-          </button>
         </nav>
       </div>
 
