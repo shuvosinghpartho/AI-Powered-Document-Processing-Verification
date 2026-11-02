@@ -10,7 +10,14 @@ import {
   Clock, 
   UploadCloud 
 } from 'lucide-react';
-import { VolumeTrendChart, FormatDonutChart, ValidationHealthBar } from './Charts.jsx';
+import { 
+  VolumeTrendChart, 
+  FormatDonutChart, 
+  ValidationHealthBar,
+  EngineBenchmarkChart,
+  DiscrepancyTypeChart,
+  PipelineFunnelChart
+} from './Charts.jsx';
 import { WEEKLY_PROCESSING_STATS, FORMAT_DISTRIBUTION } from '../data/mockDocuments.js';
 
 export default function Dashboard({ 
@@ -30,6 +37,10 @@ export default function Dashboard({
     : 0;
 
   const totalValue = documents.reduce((acc, d) => acc + (Number(d.data?.total) || 0), 0);
+  const validValue = documents
+    .filter(d => d.status === 'VALID')
+    .reduce((acc, d) => acc + (Number(d.data?.total) || 0), 0);
+  const flaggedValue = totalValue - validValue;
 
   return (
     <div className="flex flex-col gap-8 pb-12">
@@ -167,6 +178,66 @@ export default function Dashboard({
               flaggedCount={flagged} 
               processingCount={processing} 
             />
+          </div>
+        </div>
+      </div>
+
+      {/* 5-Stage Multi-Modal Document Pipeline Funnel */}
+      <div className="p-6 sm:p-7 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm">
+        <PipelineFunnelChart 
+          totalCount={total} 
+          validCount={valid} 
+          flaggedCount={flagged} 
+        />
+      </div>
+
+      {/* Deep-Dive Operational & Audit Intelligence Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Engine Latency & Accuracy Benchmark (6 cols) */}
+        <div className="lg:col-span-6 p-6 sm:p-7 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <EngineBenchmarkChart />
+        </div>
+
+        {/* Validation Discrepancy Breakdown (6 cols) */}
+        <div className="lg:col-span-6 p-6 sm:p-7 rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <DiscrepancyTypeChart documents={documents} />
+        </div>
+      </div>
+
+      {/* Financial Operations & Capital Ingestion Breakdown */}
+      <div className="p-6 rounded-3xl border bg-gradient-to-r from-slate-900 via-[#0f172a] to-[#1e293b] border-slate-800 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div>
+          <div className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold">
+            Audit Ledger Telemetry
+          </div>
+          <h4 className="text-base font-bold mt-0.5">Financial Reconciliation Capital Exposure</h4>
+          <p className="text-xs text-slate-300 mt-1 max-w-lg leading-relaxed">
+            Real-time capital balance of automatically approved funds versus quarantined liabilities currently pending human-in-the-loop review.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-6 sm:gap-8 flex-wrap">
+          <div>
+            <div className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Clean Verified</span>
+            </div>
+            <div className="text-xl sm:text-2xl font-mono font-extrabold text-white mt-0.5">
+              ${validValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+          </div>
+
+          <div className="h-10 w-px bg-slate-700 hidden sm:block"></div>
+
+          <div>
+            <div className="text-[11px] text-rose-400 font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+              <span>Pending HITL Review</span>
+            </div>
+            <div className="text-xl sm:text-2xl font-mono font-extrabold text-rose-400 mt-0.5">
+              ${flaggedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
           </div>
         </div>
       </div>

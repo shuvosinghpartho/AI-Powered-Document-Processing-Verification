@@ -131,21 +131,36 @@ export default function Sidebar({
         </nav>
       </div>
 
-      {/* Footer System Specs */}
+      {/* Footer System Specs & Author Attribution */}
       <div className="p-3 border-t border-slate-100 dark:border-slate-800/60">
         {(!isCollapsed || isMobileOpen) ? (
-          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 text-[11px] flex items-center justify-between font-medium">
-            <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-[#2f5fb0]" />
-              <span>Extraction Engine</span>
-            </span>
-            <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>Online</span>
-            </span>
+          <div className="flex flex-col gap-2">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 text-[11px] flex items-center justify-between font-medium">
+              <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                <Cpu className="w-3.5 h-3.5 text-[#2f5fb0]" />
+                <span>Extraction Engine</span>
+              </span>
+              <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Online</span>
+              </span>
+            </div>
+
+            <div className="px-1 text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              Made with ❤️ by{' '}
+              <a
+                href="https://www.linkedin.com/in/shuvosinghpartho/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-[#1c3461] dark:text-sky-300 hover:text-[#e57824] dark:hover:text-[#e57824] transition-colors underline decoration-slate-300 dark:decoration-slate-700 hover:decoration-[#e57824]"
+                title="View LinkedIn Profile of Partho"
+              >
+                Partho
+              </a>
+            </div>
           </div>
         ) : (
-          <div className="flex justify-center" title="Engine Online">
+          <div className="flex flex-col items-center gap-1" title="Engine Online • Made with ❤️ by Partho">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
           </div>
         )}
