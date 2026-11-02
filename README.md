@@ -24,7 +24,8 @@ flowchart TD
     classDef frontend fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#ffffff;
     classDef backend fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#ffffff;
     classDef db fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ffffff;
-    classDef stage fill:#1e293b,stroke:#94a3b8,stroke-width:1.5px,color:#ffffff;
+    classDef gateway fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef stage fill:#111827,stroke:#64748b,stroke-width:1.5px,color:#ffffff;
     classDef valid fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ffffff;
     classDef flagged fill:#881337,stroke:#f43f5e,stroke-width:2px,color:#ffffff;
 
@@ -32,19 +33,20 @@ flowchart TD
     Dashboard <-->|"REST APIs / Async Status Polling"| Backend["⚡ FastAPI REST Backend"]:::backend
     Backend <-->|"Thread-Safe Concurrent WAL Mode"| Database[("🗄️ SQLite Database")]:::db
 
-    Dashboard -->|"Multi-File Upload"| S1
-    Backend -->|"Async Processing Engine"| S1
+    Dashboard -->|"Multi-File Upload"| Gateway["⚙️ Multi-Format Ingestion & Processing Gateway"]:::gateway
+    Backend -->|"Asynchronous Task Workers"| Gateway
 
-    subgraph Pipeline ["⚙️ 4-Stage Core Autonomous Processing & Validation Pipeline"]
-        direction LR
-        S1["<b>1. Document Ingestion</b><br/>• Multi-Page PDF (Digital & Scanned)<br/>• Images (PNG, JPG, TIFF)<br/>• Excel Spreadsheets (XLSX, XLS)<br/>• Delimited CSV Streams<br/>• 0-Byte & Corrupted File Guard"]:::stage
-        --> S2["<b>2. Text Extraction & Vision OCR</b><br/>• PyMuPDF fitz (Digital Text & Pixmaps)<br/>• EasyOCR (Deep Learning Vision Model)<br/>• Pandas & OpenPyXL (Multi-Sheet Workbooks)<br/>• OpenCV CLAHE Contrast Preprocessing"]:::stage
-        --> S3["<b>3. AI Information Extraction</b><br/>• Google Gemini 3.5 Flash Lite LLM<br/>• 9-Field Canonical Structured JSON<br/>• Resilient Deterministic Fallback<br/>• Zero Hallucination Strict Policy"]:::stage
-        --> S4["<b>4. Deterministic Validation & Reconciliation</b><br/>• Rule 1: Missing Required Fields Check<br/>• Rule 2: Numeric Sanity (Lines == Subtotal, Subtotal + Tax == Total)<br/>• Rule 3: Historical Duplicate Invoice Collision Detection<br/>• Rule 4: Data Consistency & ISO-8601 Calendar Logic<br/>• Cross-Verification: PDF-PDF & PDF-Excel Financial Reconciliation"]:::stage
-    end
+    Gateway --> S1["<b>1. Document Ingestion</b><br/>• Multi-Page PDF (Digital & Scanned)<br/>• Images (PNG, JPG, TIFF)<br/>• Excel Spreadsheets (XLSX, XLS)<br/>• Delimited CSV Streams<br/>• 0-Byte & Corrupted File Guard"]:::stage
+    Gateway --> S2["<b>2. Text Extraction & Vision OCR</b><br/>• PyMuPDF fitz (Digital Text & Pixmaps)<br/>• EasyOCR (Deep Learning Vision Model)<br/>• Pandas & OpenPyXL (Multi-Sheet Workbooks)<br/>• OpenCV CLAHE Contrast Preprocessing"]:::stage
+    Gateway --> S3["<b>3. AI Information Extraction</b><br/>• Google Gemini 3.5 Flash Lite LLM<br/>• 9-Field Canonical Structured JSON<br/>• Resilient Deterministic Fallback<br/>• Zero Hallucination Strict Policy"]:::stage
+    Gateway --> S4["<b>4. Deterministic Validation & Reconciliation</b><br/>• Rule 1: Missing Required Fields Check<br/>• Rule 2: Numeric Sanity (Lines == Subtotal, Subtotal + Tax == Total)<br/>• Rule 3: Historical Duplicate Invoice Collision Detection<br/>• Rule 4: Data Consistency & ISO-8601 Calendar Logic<br/>• Cross-Verification: PDF-PDF & PDF-Excel Financial Reconciliation"]:::stage
 
-    S4 -->|"100% Validated (Clean Record)"| ValidNode["✅ VALIDATED RECORD<br/>• SQLite WAL Storage<br/>• Sub-ms Exact SQL LIKE Search<br/>• Semantic Vector Cosine Index"]:::valid
-    S4 -->|"Discrepancy / Missing Attribute / Duplicate"| FlaggedNode["⚠️ FLAGGED FOR HUMAN REVIEW<br/>• Side-by-Side Visual Inspector<br/>• Live Inline Field Correction Studio<br/>• One-Click Failed-Job Reprocessing"]:::flagged
+    S1 ~~~ S2 ~~~ S3 ~~~ S4
+
+    S1 & S2 & S3 & S4 --> Audit["🔍 Deterministic Audit & Validation Triage"]:::gateway
+
+    Audit -->|"100% Validated (Clean Record)"| ValidNode["✅ VALIDATED RECORD<br/>• SQLite WAL Database Storage<br/>• Sub-ms Exact SQL LIKE Search<br/>• Semantic Vector Cosine Index"]:::valid
+    Audit -->|"Discrepancy / Missing Attribute / Duplicate"| FlaggedNode["⚠️ FLAGGED FOR HUMAN REVIEW<br/>• Side-by-Side Visual Document Inspector<br/>• Live Inline Field Correction Studio<br/>• One-Click Failed-Job Reprocessing"]:::flagged
 ```
 
 ### ⚙️ Parallel Pipeline Architecture Stages
