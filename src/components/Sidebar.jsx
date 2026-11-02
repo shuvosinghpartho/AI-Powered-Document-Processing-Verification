@@ -77,7 +77,7 @@ export default function Sidebar({
 
         {/* Primary Navigation */}
         <nav className="p-3 flex flex-col gap-1">
-          <div className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 ${isCollapsed ? 'text-center' : ''}`}>
+          <div className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ${isCollapsed ? 'text-center' : ''}`}>
             {isCollapsed ? '•••' : 'Navigation'}
           </div>
 
@@ -90,19 +90,19 @@ export default function Sidebar({
                 onClick={() => onSelectTab(item.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isActive
-                    ? 'bg-[#eef4ff] text-[#1c3461] dark:bg-[#1c3461]/40 dark:text-sky-300 border-l-2 border-[#e57824] pl-2.5 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-[#eef4ff] text-[#1c3461] dark:bg-[#1c3461]/40 dark:text-sky-300 border-l-2 border-[#e57824] pl-2.5 shadow-sm font-bold'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-950 dark:hover:text-white'
                 }`}
                 title={item.label}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#e57824]' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#e57824]' : 'text-slate-500 dark:text-slate-400'}`} />
                   {!isCollapsed && <span className="truncate">{item.label}</span>}
                 </div>
 
                 {!isCollapsed && item.badge !== undefined && (
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                    item.badgeColor || 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                    item.badgeColor || 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
                   }`}>
                     {item.badge}
                   </span>
@@ -114,15 +114,15 @@ export default function Sidebar({
           {/* Quick Action Shortcut: Global Search */}
           <button
             onClick={onOpenSearch}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-all mt-1"
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-950 dark:hover:text-white transition-all mt-1"
             title="AI Semantic Search"
           >
             <div className="flex items-center gap-3">
-              <Search className="w-4 h-4 text-slate-400" />
+              <Search className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               {!isCollapsed && <span>Search &amp; Vectors</span>}
             </div>
             {!isCollapsed && (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400">⌘K</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">⌘K</span>
             )}
           </button>
         </nav>
@@ -131,15 +131,15 @@ export default function Sidebar({
       {/* Footer System Specs */}
       <div className="p-3 border-t border-slate-100 dark:border-slate-800/60">
         {!isCollapsed ? (
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 text-[11px] flex flex-col gap-1.5">
-            <div className="flex items-center justify-between font-medium">
-              <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-[#2f5fb0]" />
-                <span>Extraction Engine</span>
-              </span>
-              <span className="font-mono text-emerald-500 font-bold">Online</span>
-            </div>
-            <div className="text-[10px] text-slate-400 font-mono">Gemini 3.5 Flash Lite + EasyOCR</div>
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 text-[11px] flex items-center justify-between font-medium">
+            <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-[#2f5fb0]" />
+              <span>Extraction Engine</span>
+            </span>
+            <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Online</span>
+            </span>
           </div>
         ) : (
           <div className="flex justify-center" title="Engine Online">

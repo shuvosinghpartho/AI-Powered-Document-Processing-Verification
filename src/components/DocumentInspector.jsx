@@ -398,7 +398,7 @@ export default function DocumentInspector({
                 </button>
                 <pre className="p-4 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-xs overflow-x-auto max-h-[460px]">
                   {JSON.stringify({
-                    extraction_model: 'gemini-2.5-flash',
+                    extraction_model: 'gemini-3.5-flash-lite',
                     doc_id: doc.id,
                     filename: doc.filename,
                     status: validation.status,

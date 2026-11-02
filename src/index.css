@@ -6,6 +6,22 @@
   body {
     @apply transition-colors duration-200;
   }
+
+  /* Enhanced Light Mode Text Crispness */
+  html.light {
+    color-scheme: light;
+  }
+  html.light body {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+  html.light table thead {
+    color: #334155;
+    background-color: #f1f5f9;
+  }
+  html.light input, html.light select, html.light textarea {
+    color: #0f172a;
+  }
 }
 
 /* Custom Sleek Scrollbar */
@@ -17,16 +33,16 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(100, 116, 139, 0.3);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(100, 116, 139, 0.5);
 }
 
 /* Ambient glow & cyber mesh */
 .ambient-glow {
-  background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12), rgba(6, 182, 212, 0.03), transparent 70%);
+  background: radial-gradient(circle at 50% 0%, rgba(47, 95, 176, 0.08), rgba(229, 120, 36, 0.02), transparent 70%);
 }
 
 /* OCR Bounding Boxes */

@@ -35,12 +35,12 @@ export default function Topbar({
       
       {/* Title & Breadcrumbs */}
       <div>
-        <div className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
-          <span className="font-semibold text-[#1c3461] dark:text-sky-300">Cottage Home Care</span>
+        <div className="text-[11px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+          <span className="font-bold text-[#1c3461] dark:text-sky-300">Cottage Home Care</span>
           <span>•</span>
           <span>Financial Document Operations</span>
         </div>
-        <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+        <h2 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
           {getBreadcrumbTitle()}
         </h2>
       </div>
@@ -50,13 +50,13 @@ export default function Topbar({
         {/* Search Bar Input Pill */}
         <button
           onClick={onOpenSearch}
-          className="hidden md:flex items-center gap-3 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 text-xs transition-all w-64 justify-between"
+          className="hidden md:flex items-center gap-3 px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-400 dark:hover:border-slate-700 text-xs transition-all w-64 justify-between shadow-2xs"
         >
           <div className="flex items-center gap-2">
-            <Search className="w-3.5 h-3.5 text-slate-400" />
-            <span>Search documents or concepts...</span>
+            <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+            <span className="font-medium">Search documents or concepts...</span>
           </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-200 dark:bg-slate-800 text-slate-500">⌘K</kbd>
+          <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 font-bold">⌘K</kbd>
         </button>
 
         {/* Quick Sample File Injector */}

@@ -77,14 +77,14 @@ export default function Dashboard({
         {/* Metric 1 */}
         <div className="p-5 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Documents</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Total Documents</span>
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-[#2f5fb0] flex items-center justify-center">
               <FileText className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{total}</div>
-            <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+            <div className="text-2xl font-extrabold font-mono text-slate-900 dark:text-white">{total}</div>
+            <div className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1">
               <TrendingUp className="w-3.5 h-3.5" />
               <span>+18% from last week</span>
             </div>
@@ -94,14 +94,14 @@ export default function Dashboard({
         {/* Metric 2 */}
         <div className="p-5 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Validation Rate</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Validation Rate</span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{validRate}%</div>
-            <div className="text-[11px] text-slate-400 mt-1">
+            <div className="text-2xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">{validRate}%</div>
+            <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 font-medium">
               {valid} of {total} passed deterministic checks
             </div>
           </div>
@@ -110,14 +110,14 @@ export default function Dashboard({
         {/* Metric 3 */}
         <div className="p-5 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Requires Attention</span>
-            <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Requires Attention</span>
+            <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-bold font-mono text-rose-600 dark:text-rose-400">{flagged}</div>
-            <div className="text-[11px] text-rose-500/90 font-medium mt-1">
+            <div className="text-2xl font-extrabold font-mono text-rose-600 dark:text-rose-400">{flagged}</div>
+            <div className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1">
               Human-in-the-Loop review needed
             </div>
           </div>
@@ -126,16 +126,16 @@ export default function Dashboard({
         {/* Metric 4 */}
         <div className="p-5 rounded-2xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Value Processed</span>
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Total Value Processed</span>
+            <div className="w-9 h-9 rounded-xl bg-[#2f5fb0]/10 text-[#2f5fb0] flex items-center justify-center">
               <span className="font-mono font-bold text-xs">$</span>
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            <div className="text-2xl font-extrabold font-mono text-slate-900 dark:text-white">
               ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-            <div className="text-[11px] text-slate-400 mt-1 font-mono">
+            <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 font-mono font-medium">
               Avg OCR Confidence: {avgConfidence}%
             </div>
           </div>
@@ -173,15 +173,15 @@ export default function Dashboard({
 
       {/* Recent Ingestion Stream Table */}
       <div className="rounded-3xl border bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Recent Documents Stream</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Real-time status of ingested invoices &amp; records</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-0.5">Real-time status of ingested invoices &amp; records</p>
           </div>
           
           <button
             onClick={() => onSwitchTab('documents')}
-            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#1c3461] hover:text-[#2f5fb0] dark:text-sky-400 hover:underline flex items-center gap-1"
           >
             <span>View All Repository</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -190,7 +190,7 @@ export default function Dashboard({
 
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50/70 dark:bg-slate-950/40 border-b border-slate-100 dark:border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+            <thead className="bg-slate-100/90 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 uppercase text-[11px] font-bold tracking-wider">
               <tr>
                 <th className="py-3.5 px-6">Document Details</th>
                 <th className="py-3.5 px-6">Invoice #</th>
@@ -200,7 +200,7 @@ export default function Dashboard({
                 <th className="py-3.5 px-6 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-mono">
               {documents.slice(0, 5).map(doc => {
                 const isValid = doc.status === 'VALID';
                 const isFlagged = doc.status === 'FLAGGED';
