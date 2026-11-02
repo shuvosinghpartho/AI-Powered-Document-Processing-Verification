@@ -91,4 +91,36 @@ def test_validation_flags_corrupted_file():
     assert any("File Integrity Check" in c.title for c in report.checks)
     assert any(not c.passed for c in report.checks if c.title == "File Integrity Check")
 
+def test_csv_fast_path_extraction(tmp_path):
+    import time
+    from app.pipeline.stage3_ai_gemini import extract_structured_entities_with_gemini
+    from app.pipeline.stage2_extractor import extract_text_and_confidence
+
+    csv_file = tmp_path / "expenses_speed_test.csv"
+    csv_file.write_text(
+        "item,quantity,rate,total\n"
+        "Server Instance,2,300.00,600.00\n"
+        "Storage Bucket,1,50.00,50.00\n"
+        "Subtotal,,,650.00\n"
+        "Tax,,,65.00\n"
+        "Total,,,715.00\n"
+        "Invoice: CSV-2026-909\n"
+        "Vendor: SwiftCloud Express\n"
+        "Date: 2026-11-01\n"
+    )
+
+    t0 = time.time()
+    txt, eng, conf = extract_text_and_confidence(str(csv_file), "CSV")
+    data = extract_structured_entities_with_gemini(txt, "expenses_speed_test.csv", str(csv_file))
+    elapsed = time.time() - t0
+
+    assert elapsed < 0.5  # Sub-second fast-path
+    assert data["invoiceNo"] == "CSV-2026-909"
+    assert "SwiftCloud Express" in data["vendor"]
+    assert data["subtotal"] == 650.0
+    assert data["tax"] == 65.0
+    assert data["total"] == 715.0
+    assert len(data["lineItems"]) >= 2
+
+
 

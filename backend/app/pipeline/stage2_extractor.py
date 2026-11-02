@@ -122,11 +122,17 @@ def extract_text_and_confidence(file_path: str, format_type: str) -> Tuple[str, 
         try:
             import pandas as pd
             df = pd.read_csv(str(path))
-            return (df.to_string(), "Pandas CSV Parser", 100.0)
+            total_rows = len(df)
+            if total_rows > 100:
+                preview = df.head(50).to_string()
+                summary_text = f"[CSV Stream: {total_rows} total rows, {len(df.columns)} columns]\n{preview}\n\n... [{total_rows - 50} additional rows omitted for streaming throughput] ..."
+                return (summary_text, "Pandas CSV Parser", 100.0)
+            else:
+                return (df.to_string(), "Pandas CSV Parser", 100.0)
         except Exception as e:
             try:
                 with open(str(path), "r", encoding="utf-8", errors="ignore") as f:
-                    content = f.read()
+                    content = f.read(50000)
                     if not content.strip():
                         return ("[CORRUPTED_FILE: CSV file is empty]", "Pandas CSV", 0.0)
                     return (content, "Pandas Raw CSV", 95.0)

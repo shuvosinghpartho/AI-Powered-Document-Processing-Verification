@@ -274,10 +274,12 @@ export default function App() {
           }
           setCurrentTab('documents');
 
-          // Poll each document until complete
+          // Poll each document until complete (fast 300ms intervals)
           placeholders.forEach(docItem => {
             const docId = docItem.id;
+            let pollAttempts = 0;
             const pollInterval = setInterval(async () => {
+              pollAttempts++;
               try {
                 const sRes = await fetch(`${fastApiConfig.baseUrl}/api/v1/status/${docId}`);
                 if (sRes.ok) {
@@ -290,7 +292,7 @@ export default function App() {
                     history: st.history || d.history
                   } : d));
 
-                  if (st.progress >= 100) {
+                  if (st.progress >= 100 || st.status === 'VALID' || st.status === 'FLAGGED' || st.status === 'ERROR' || pollAttempts >= 60) {
                     clearInterval(pollInterval);
                     // Fetch full document with extracted JSON and validation checks
                     const fRes = await fetch(`${fastApiConfig.baseUrl}/api/v1/documents/${docId}`);
@@ -300,11 +302,15 @@ export default function App() {
                       addToast(`${docItem.filename} processed successfully!`, 'success');
                     }
                   }
+                } else if (pollAttempts >= 60) {
+                  clearInterval(pollInterval);
                 }
               } catch (e) {
-                clearInterval(pollInterval);
+                if (pollAttempts >= 60) {
+                  clearInterval(pollInterval);
+                }
               }
-            }, 800);
+            }, 300);
           });
           return;
         }
