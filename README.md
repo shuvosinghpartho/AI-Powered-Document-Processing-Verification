@@ -32,27 +32,29 @@ flowchart TD
     Dashboard <-->|"REST APIs / Async Status Polling"| Backend["⚡ FastAPI REST Backend"]:::backend
     Backend <-->|"Thread-Safe Concurrent WAL Mode"| Database[("🗄️ SQLite Database")]:::db
 
-    Dashboard -->|"Multi-File Upload (PDF, PNG, XLSX, CSV)"| Queue["📥 Ingestion Queue"]
-    Backend -->|"Asynchronous Background Workers"| Pipeline["⚙️ Processing Engine"]
+    Dashboard -->|"Multi-File Upload"| S1
+    Backend -->|"Async Processing Engine"| S1
 
-    Queue & Pipeline --> S1["1. Document Ingestion<br/>• Multi-Page PDF (Digital & Scanned)<br/>• Images (PNG, JPG, TIFF)<br/>• Excel Spreadsheets (XLSX, XLS)<br/>• Delimited CSV Streams<br/>• 0-Byte & Corrupted File Guard"]:::stage
+    subgraph Pipeline ["⚙️ 4-Stage Core Autonomous Processing & Validation Pipeline"]
+        direction LR
+        S1["<b>1. Document Ingestion</b><br/>• Multi-Page PDF (Digital & Scanned)<br/>• Images (PNG, JPG, TIFF)<br/>• Excel Spreadsheets (XLSX, XLS)<br/>• Delimited CSV Streams<br/>• 0-Byte & Corrupted File Guard"]:::stage
+        --> S2["<b>2. Text Extraction & Vision OCR</b><br/>• PyMuPDF fitz (Digital Text & Pixmaps)<br/>• EasyOCR (Deep Learning Vision Model)<br/>• Pandas & OpenPyXL (Multi-Sheet Workbooks)<br/>• OpenCV CLAHE Contrast Preprocessing"]:::stage
+        --> S3["<b>3. AI Information Extraction</b><br/>• Google Gemini 3.5 Flash Lite LLM<br/>• 9-Field Canonical Structured JSON<br/>• Resilient Deterministic Fallback<br/>• Zero Hallucination Strict Policy"]:::stage
+        --> S4["<b>4. Deterministic Validation & Reconciliation</b><br/>• Rule 1: Missing Required Fields Check<br/>• Rule 2: Numeric Sanity (Lines == Subtotal, Subtotal + Tax == Total)<br/>• Rule 3: Historical Duplicate Invoice Collision Detection<br/>• Rule 4: Data Consistency & ISO-8601 Calendar Logic<br/>• Cross-Verification: PDF-PDF & PDF-Excel Financial Reconciliation"]:::stage
+    end
 
-    S1 --> S2["2. Text Extraction & Vision OCR<br/>• PyMuPDF fitz (Digital Text & Pixmaps)<br/>• EasyOCR (Deep Learning Vision Model)<br/>• Pandas & OpenPyXL (Multi-Sheet Workbooks)<br/>• OpenCV CLAHE Contrast Preprocessing"]:::stage
-
-    S2 --> S3["3. AI Information Extraction<br/>• Google Gemini 3.5 Flash Lite LLM<br/>• 9-Field Canonical Structured JSON<br/>• Resilient Deterministic Fallback<br/>• Zero Hallucination Strict Policy"]:::stage
-
-    S3 --> S4["4. Deterministic Validation & Reconciliation<br/>• Rule 1: Missing Required Fields Check<br/>• Rule 2: Numeric Sanity (Lines == Subtotal, Subtotal + Tax == Total)<br/>• Rule 3: Historical Duplicate Invoice Collision Detection<br/>• Rule 4: Data Consistency & ISO-8601 Calendar Logic<br/>• Cross-Verification: PDF-PDF & PDF-Excel Financial Reconciliation"]:::stage
-
-    S4 -->|"100% Validated (Clean Record)"| ValidNode["✅ VALIDATED RECORD"]:::valid
-    S4 -->|"Discrepancy / Missing Attribute / Duplicate"| FlaggedNode["⚠️ FLAGGED FOR HUMAN REVIEW"]:::flagged
-
-    ValidNode --> S5["5. Persistent Storage & Search<br/>• SQLite WAL Database Storage<br/>• Sub-Millisecond Exact SQL LIKE Search<br/>• Natural Language Vector Cosine Index"]:::valid
-
-    FlaggedNode --> HITL["Human-in-the-Loop Triage Center<br/>• Side-by-Side Visual Document Inspector<br/>• Live Inline Field Value Correction Studio<br/>• One-Click Failed-Job Reprocessing"]:::flagged
+    S4 -->|"100% Validated (Clean Record)"| ValidNode["✅ VALIDATED RECORD<br/>• SQLite WAL Storage<br/>• Sub-ms Exact SQL LIKE Search<br/>• Semantic Vector Cosine Index"]:::valid
+    S4 -->|"Discrepancy / Missing Attribute / Duplicate"| FlaggedNode["⚠️ FLAGGED FOR HUMAN REVIEW<br/>• Side-by-Side Visual Inspector<br/>• Live Inline Field Correction Studio<br/>• One-Click Failed-Job Reprocessing"]:::flagged
 ```
 
+### ⚙️ Parallel Pipeline Architecture Stages
+
+| 1. Document Ingestion | 2. Text Extraction & Vision OCR | 3. AI Information Extraction | 4. Deterministic Validation & Reconciliation |
+| :--- | :--- | :--- | :--- |
+| • **Multi-Page PDF** (Digital & Scanned)<br/>• **Images** (PNG, JPG, TIFF)<br/>• **Excel Spreadsheets** (XLSX, XLS)<br/>• **Delimited CSV** Streams<br/>• **0-Byte & Corrupted File Guard** | • **PyMuPDF fitz** (Digital Text & Pixmaps)<br/>• **EasyOCR** (Deep Learning Vision Model)<br/>• **Pandas & OpenPyXL** (Multi-Sheet Workbooks)<br/>• **OpenCV CLAHE** Contrast Preprocessing | • **Google Gemini 3.5 Flash Lite** LLM<br/>• **9-Field Canonical** Structured JSON<br/>• **Resilient Deterministic** Fallback<br/>• **Zero Hallucination** Strict Policy | • **Rule 1**: Missing Required Fields Check<br/>• **Rule 2**: Numeric Sanity (`Lines == Subtotal`, `Sub + Tax == Total`)<br/>• **Rule 3**: Historical Duplicate Invoice Collision Detection<br/>• **Rule 4**: Data Consistency & ISO-8601 Calendar Logic<br/>• **Cross-Verification**: PDF-PDF & PDF-Excel Reconciliation |
+
 <details>
-<summary>📋 Click to view ASCII Architecture Diagram</summary>
+<summary>📋 Click to view Parallel ASCII Architecture Diagram</summary>
 
 ```
 [User / Client] ──► [React.js SaaS Dashboard] ◄──► [FastAPI REST Backend] ◄──► [SQLite DB (WAL Mode)]
@@ -61,33 +63,26 @@ flowchart TD
                   [Multi-File Upload]            [Async Background Pipeline]
                              │                                │
     ┌────────────────────────┴────────────────────────────────┴────────────────────────┐
-    ▼                                        ▼                                        ▼
-1. Document Ingest               2. Text Extraction / OCR                 3. AI Information Extraction
-- PDF (Digital & Scanned)        - PyMuPDF (Digital PDFs & Pixmaps)       - Gemini 3.5 Flash Lite
-- Images (PNG, JPG, TIFF)        - EasyOCR (Scanned Images & Docs)        - 9-Field Canonical JSON
-- Excel (XLSX, XLS)              - Pandas + OpenPyXL (Excel Sheets)       - Resilient Heuristic Fallback
-- CSV (Delimited)                - Pandas (CSV Tables)
-- Empty & Corrupted File Guard   - Contrast Enhancement (OpenCV CLAHE)
-    │                                        │                                        │
-    └────────────────────────────────────────┬────────────────────────────────────────┘
-                                             ▼
-                                  4. Deterministic Validation & Reconciliation
-                                  - Rule 1: Missing Required Fields Check
-                                  - Rule 2: Numeric Calculation Check (Lines == Subtotal, Subtotal + Tax == Total)
-                                  - Rule 3: Duplicate Invoice Detection across historical repository
-                                  - Rule 4: Data Consistency & Calendar Date Logic Check
-                                  - Rule 5: File Integrity & Corruption Guard
-                                  - Cross-Verification: PDF-PDF & PDF-Excel Multi-Doc Financial Reconciliation
-                                             │
-                       ┌─────────────────────┴─────────────────────┐
-                       ▼                                           ▼
-             [VALID: 100% Match]                        [FLAGGED FOR MANUAL REVIEW]
-                       │                                           │
-                       ▼                                           ▼
-             5. Save & Semantic Search                   Human-in-the-Loop Review Queue
-             - SQLite Persistent Storage                 - Side-by-side Visual Inspector
-             - Keyword Search (LIKE query)               - Inline Value Correction
-             - Semantic Vector Cosine Index              - One-Click Failed-Job Reprocessing
+    ▼                                                                                  ▼
+┌───────────────────────────────┬───────────────────────────────┬───────────────────────────────┬───────────────────────────────────────────┐
+│ 1. Document Ingestion         │ 2. Text Extraction & OCR      │ 3. AI Information Extraction  │ 4. Deterministic Validation & Audit       │
+├───────────────────────────────┼───────────────────────────────┼───────────────────────────────┼───────────────────────────────────────────┤
+│ • Multi-Page PDF (Digi/Scan)  │ • PyMuPDF fitz (Direct Text)  │ • Google Gemini 3.5 Flash Lite│ • Rule 1: Missing Required Fields Check   │
+│ • Images (PNG, JPG, TIFF)     │ • EasyOCR (Deep Learning Vision)│ • 9-Field Canonical JSON      │ • Rule 2: Numeric Sanity (Lines=Sub=Total)│
+│ • Excel Sheets (XLSX, XLS)    │ • Pandas & OpenPyXL Workbooks │ • Resilient Deterministic Fall│ • Rule 3: Historical Duplicate Detection  │
+│ • Delimited CSV Streams       │ • OpenCV CLAHE Preprocessing  │ • Zero Hallucination Strict   │ • Rule 4: Consistency & ISO-8601 Calendar │
+│ • 0-Byte / Corruption Guard   │ • Multi-format Normalization  │ • Pydantic Schema Enforcement │ • Cross-Verification: PDF-Excel Matching  │
+└───────────────────────────────┴───────────────────────────────┴───────────────────────────────┴───────────────────────────────────────────┘
+                                                 │
+                        ┌────────────────────────┴────────────────────────┐
+                        ▼                                                 ▼
+             [VALID: 100% Match]                               [FLAGGED FOR MANUAL REVIEW]
+                        │                                                 │
+                        ▼                                                 ▼
+             5. Save & Semantic Search                         Human-in-the-Loop Review Queue
+             - SQLite Persistent Storage (WAL Mode)            - Side-by-side Visual Inspector
+             - Keyword Search (LIKE query)                     - Inline Value Correction Studio
+             - Semantic Vector Cosine Index                    - One-Click Failed-Job Reprocessing
 ```
 
 </details>
