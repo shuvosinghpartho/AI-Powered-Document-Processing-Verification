@@ -25,6 +25,8 @@ async def correct_document_values(doc_id: str, payload: DocumentCorrectionReques
         current_data["invoiceNo"] = payload.invoiceNo
     if payload.vendor is not None:
         current_data["vendor"] = payload.vendor
+    if payload.customer is not None:
+        current_data["customer"] = payload.customer
     if payload.issueDate is not None:
         current_data["issueDate"] = payload.issueDate
     if payload.currency is not None:

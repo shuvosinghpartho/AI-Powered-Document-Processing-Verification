@@ -39,7 +39,7 @@ class Settings(BaseModel):
     
     # Supported Formats
     ALLOWED_EXTENSIONS: set = {
-        ".pdf", ".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".webp", ".xlsx", ".xls", ".csv"
+        ".pdf", ".png", ".jpg", ".jpeg", ".tiff", ".tif", ".bmp", ".webp", ".xlsx", ".xls", ".csv"
     }
 
 settings = Settings()

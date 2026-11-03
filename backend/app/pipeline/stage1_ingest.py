@@ -29,7 +29,7 @@ def ingest_file(upload_file: UploadFile) -> dict:
     if ext in [".pdf"]:
         format_type = "PDF"
         sub_type = "PDF Document"
-    elif ext in [".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".webp"]:
+    elif ext in [".png", ".jpg", ".jpeg", ".tiff", ".tif", ".bmp", ".webp"]:
         format_type = "IMAGE"
         sub_type = f"Vision Image ({ext.replace('.', '').upper()})"
     elif ext in [".xlsx", ".xls"]:
