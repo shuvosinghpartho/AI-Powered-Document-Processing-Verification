@@ -274,10 +274,11 @@ export default function App() {
           }
           setCurrentTab('documents');
 
-          // Poll each document until complete (fast 300ms intervals)
+          // Poll each document until complete (500ms intervals, up to 120s for large 1000-page files)
           placeholders.forEach(docItem => {
             const docId = docItem.id;
             let pollAttempts = 0;
+            const maxPollAttempts = 240; // 240 * 500ms = 120 seconds
             const pollInterval = setInterval(async () => {
               pollAttempts++;
               try {
@@ -292,7 +293,7 @@ export default function App() {
                     history: st.history || d.history
                   } : d));
 
-                  if (st.progress >= 100 || st.status === 'VALID' || st.status === 'FLAGGED' || st.status === 'ERROR' || pollAttempts >= 60) {
+                  if (st.progress >= 100 || st.status === 'VALID' || st.status === 'FLAGGED' || st.status === 'ERROR' || pollAttempts >= maxPollAttempts) {
                     clearInterval(pollInterval);
                     // Fetch full document with extracted JSON and validation checks
                     const fRes = await fetch(`${fastApiConfig.baseUrl}/api/v1/documents/${docId}`);
@@ -302,15 +303,20 @@ export default function App() {
                       addToast(`${docItem.filename} processed successfully!`, 'success');
                     }
                   }
-                } else if (pollAttempts >= 60) {
+                } else if (pollAttempts >= maxPollAttempts) {
                   clearInterval(pollInterval);
+                  const fRes = await fetch(`${fastApiConfig.baseUrl}/api/v1/documents/${docId}`);
+                  if (fRes.ok) {
+                    const fullDoc = await fRes.json();
+                    setDocuments(prev => prev.map(d => d.id === docId ? fullDoc : d));
+                  }
                 }
               } catch (e) {
-                if (pollAttempts >= 60) {
+                if (pollAttempts >= maxPollAttempts) {
                   clearInterval(pollInterval);
                 }
               }
-            }, 300);
+            }, 500);
           });
           return;
         }

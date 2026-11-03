@@ -344,13 +344,22 @@ Return ONLY a valid JSON object matching this schema:
                 parts.append({"inline_data": {"mime_type": mime, "data": b64_data}})
             except Exception as e:
                 print(f"[Gemini Vision Note] Could not load image bytes: {e}")
-        elif ext == "pdf" and os.path.getsize(file_path) < 15 * 1024 * 1024:
+        elif ext == "pdf":
+            # For digital multi-page PDFs (especially 5 to 1000 pages), PyMuPDF text stream is already 
+            # 100% extracted and pristine. Sending a huge multi-page binary PDF payload over HTTP causes 
+            # Gemini network timeouts (> 18s).
+            # Therefore, we only attach raw PDF bytes for short (<= 5 pages) image-only / scanned PDFs.
             try:
-                with open(file_path, "rb") as pdf_file:
-                    b64_data = base64.b64encode(pdf_file.read()).decode("utf-8")
-                parts.append({"inline_data": {"mime_type": "application/pdf", "data": b64_data}})
+                import fitz
+                p_doc = fitz.open(file_path)
+                p_count = p_doc.page_count
+                p_doc.close()
+                if p_count <= 5 and (not clean_text or len(clean_text) < 120) and os.path.getsize(file_path) < 10 * 1024 * 1024:
+                    with open(file_path, "rb") as pdf_file:
+                        b64_data = base64.b64encode(pdf_file.read()).decode("utf-8")
+                    parts.append({"inline_data": {"mime_type": "application/pdf", "data": b64_data}})
             except Exception as e:
-                print(f"[Gemini PDF Vision Note] Could not attach PDF bytes: {e}")
+                print(f"[Gemini PDF Vision Note] Could not check/attach PDF bytes: {e}")
 
     payload = {
         "contents": [
@@ -464,7 +473,44 @@ def extract_with_heuristic_rules(extracted_text: str, filename: str = "") -> Dic
     date_match = re.search(r"(?:date|issue date|effective date)[:\s]*(\d{4}-\d{2}-\d{2})", text, re.IGNORECASE)
     if date_match:
         issue_date = date_match.group(1)
-    else:
+
+    # Natural Month DD, YYYY (e.g. November 3, 2026 or Nov 3, 2026)
+    if not issue_date:
+        m_match = re.search(r"\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+(\d{1,2}),?\s+(\d{4})\b", text, re.IGNORECASE)
+        if m_match:
+            raw_s = f"{m_match.group(1)} {m_match.group(2)} {m_match.group(3)}"
+            for fmt in ["%B %d %Y", "%b %d %Y"]:
+                try:
+                    dt = datetime.strptime(raw_s, fmt)
+                    issue_date = dt.strftime("%Y-%m-%d")
+                    break
+                except ValueError:
+                    pass
+
+    # DD Month YYYY (e.g. 25 Oct 2026)
+    if not issue_date:
+        d_match = re.search(r"\b(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+(\d{4})\b", text, re.IGNORECASE)
+        if d_match:
+            raw_s = f"{d_match.group(1)} {d_match.group(2)} {d_match.group(3)}"
+            for fmt in ["%d %B %Y", "%d %b %Y"]:
+                try:
+                    dt = datetime.strptime(raw_s, fmt)
+                    issue_date = dt.strftime("%Y-%m-%d")
+                    break
+                except ValueError:
+                    pass
+
+    # Slashes MM/DD/YYYY or DD/MM/YYYY
+    if not issue_date:
+        slash_match = re.search(r"\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})\b", text)
+        if slash_match:
+            p1, p2, yr = int(slash_match.group(1)), int(slash_match.group(2)), int(slash_match.group(3))
+            if p1 > 12 and p2 <= 12:
+                issue_date = f"{yr:04d}-{p2:02d}-{p1:02d}"
+            elif p1 <= 12 and p2 <= 12:
+                issue_date = f"{yr:04d}-{p1:02d}-{p2:02d}"
+
+    if not issue_date:
         any_date = re.search(r"\b(\d{4}-\d{2}-\d{2})\b", text)
         if any_date:
             issue_date = any_date.group(1)

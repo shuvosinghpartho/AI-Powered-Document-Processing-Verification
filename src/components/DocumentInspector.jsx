@@ -291,85 +291,124 @@ export default function DocumentInspector({
           {/* Subtab Contents (Internal Scroll) */}
           <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5">
             {activeTab === 'preview' && (
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-5 flex flex-col gap-4 font-mono text-xs shadow-inner">
-                {/* Header inside Document Visualizer */}
-                <div className="flex items-center justify-between pb-4 border-b border-dashed border-slate-300 dark:border-slate-800">
+              doc.status === 'PROCESSING' ? (
+                <div className="rounded-2xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/20 p-8 flex flex-col items-center justify-center gap-4 text-center my-auto">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-full border-4 border-blue-500/20 border-t-blue-500 animate-spin" />
+                  </div>
                   <div>
-                    <div 
-                      className={`font-bold text-sm text-slate-900 dark:text-white ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-blue' : ''}`}
-                      onMouseEnter={() => setHighlightedField('vendor')}
-                      onMouseLeave={() => setHighlightedField(null)}
-                    >
-                      {doc.data?.vendor || '[VENDOR NOT DETECTED]'}
-                    </div>
-                    <div className="text-[11px] text-slate-400 font-sans mt-0.5">Enterprise Document Services</div>
+                    <h4 className="font-semibold text-slate-800 dark:text-slate-100 text-sm">
+                      Autonomous Pipeline in Progress (Stage {doc.stage || 1} of 5)
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                      {doc.stage === 1 ? 'Ingesting document stream and computing cryptographic hash' :
+                       doc.stage === 2 ? 'PyMuPDF text extraction & vision OCR stream' :
+                       doc.stage === 3 ? 'AI Information extraction & canonical schema mapping' :
+                       doc.stage === 4 ? 'Executing 5-rule deterministic mathematical validation' :
+                       'Finalizing SQLite WAL transaction and search indexing'}
+                    </p>
                   </div>
-                  <div className="text-right">
+                  <div className="w-full max-w-xs bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                     <div 
-                      className={`font-bold text-slate-900 dark:text-white ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-green' : ''}`}
-                      onMouseEnter={() => setHighlightedField('invoiceNo')}
-                      onMouseLeave={() => setHighlightedField(null)}
-                    >
-                      {doc.data?.invoiceNo || '[MISSING INVOICE NUMBER]'}
-                    </div>
-                    <div 
-                      className={`text-[11px] text-slate-400 mt-0.5 ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-purple' : ''}`}
-                      onMouseEnter={() => setHighlightedField('issueDate')}
-                      onMouseLeave={() => setHighlightedField(null)}
-                    >
-                      {doc.data?.issueDate || 'YYYY-MM-DD'}
-                    </div>
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${doc.progress || 25}%` }}
+                    />
                   </div>
+                  <span className="text-[11px] font-mono text-blue-600 dark:text-blue-400 font-medium">
+                    {doc.progress || 25}% completed • Processing multi-page document...
+                  </span>
                 </div>
+              ) : (
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-5 flex flex-col gap-4 font-mono text-xs shadow-inner">
+                  {/* Header inside Document Visualizer */}
+                  <div className="flex items-center justify-between pb-4 border-b border-dashed border-slate-300 dark:border-slate-800">
+                    <div>
+                      <div 
+                        className={`font-bold text-sm text-slate-900 dark:text-white ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-blue' : ''}`}
+                        onMouseEnter={() => setHighlightedField('vendor')}
+                        onMouseLeave={() => setHighlightedField(null)}
+                      >
+                        {doc.data?.vendor || '[VENDOR NOT DETECTED]'}
+                      </div>
+                      <div className="text-[11px] text-slate-400 font-sans mt-0.5">
+                        {doc.data?.customer ? `Billed To: ${doc.data.customer}` : 'Enterprise Document Services'}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div 
+                        className={`font-bold text-slate-900 dark:text-white ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-green' : ''}`}
+                        onMouseEnter={() => setHighlightedField('invoiceNo')}
+                        onMouseLeave={() => setHighlightedField(null)}
+                      >
+                        {doc.data?.invoiceNo || '[MISSING INVOICE NUMBER]'}
+                      </div>
+                      <div 
+                        className={`text-[11px] text-slate-400 mt-0.5 ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-purple' : ''}`}
+                        onMouseEnter={() => setHighlightedField('issueDate')}
+                        onMouseLeave={() => setHighlightedField(null)}
+                      >
+                        {doc.data?.issueDate || 'YYYY-MM-DD'}
+                      </div>
+                    </div>
+                  </div>
 
-                {/* Table representation */}
-                <div className="py-2">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="border-b border-slate-300 dark:border-slate-800 text-[10px] text-slate-400 font-sans uppercase">
-                        <th className="pb-2">Line Description</th>
-                        <th className="pb-2 text-right">Qty</th>
-                        <th className="pb-2 text-right">Rate</th>
-                        <th className="pb-2 text-right">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800/40">
-                      {(doc.data?.lineItems || []).map((item, i) => (
-                        <tr key={i} className={showBoundingBoxes ? 'ocr-bbox ocr-bbox-purple' : ''}>
-                          <td className="py-2.5 text-slate-800 dark:text-slate-200">{item.description}</td>
-                          <td className="py-2.5 text-right text-slate-600 dark:text-slate-400">{item.qty}</td>
-                          <td className="py-2.5 text-right text-slate-600 dark:text-slate-400">${Number(item.unitPrice).toFixed(2)}</td>
-                          <td className="py-2.5 text-right font-bold text-slate-900 dark:text-white">
-                            ${((Number(item.qty) || 0) * (Number(item.unitPrice) || 0)).toFixed(2)}
-                          </td>
+                  {/* Table representation */}
+                  <div className="py-2">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-slate-300 dark:border-slate-800 text-[10px] text-slate-400 font-sans uppercase">
+                          <th className="pb-2">Line Description</th>
+                          <th className="pb-2 text-right">Qty</th>
+                          <th className="pb-2 text-right">Rate</th>
+                          <th className="pb-2 text-right">Total</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800/40">
+                        {(doc.data?.lineItems || []).length > 0 ? (
+                          (doc.data?.lineItems || []).map((item, i) => (
+                            <tr key={i} className={showBoundingBoxes ? 'ocr-bbox ocr-bbox-purple' : ''}>
+                              <td className="py-2.5 text-slate-800 dark:text-slate-200">{item.description}</td>
+                              <td className="py-2.5 text-right text-slate-600 dark:text-slate-400">{item.qty}</td>
+                              <td className="py-2.5 text-right text-slate-600 dark:text-slate-400">${Number(item.unitPrice).toFixed(2)}</td>
+                              <td className="py-2.5 text-right font-bold text-slate-900 dark:text-white">
+                                ${((Number(item.qty) || 0) * (Number(item.unitPrice) || 0)).toFixed(2)}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="4" className="py-4 text-center text-slate-400 font-sans">
+                              No itemized lines detected in summary ledger.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
 
-                {/* Totals Strip */}
-                <div className="pt-4 border-t border-dashed border-slate-300 dark:border-slate-800 flex justify-end">
-                  <div className="w-56 flex flex-col gap-1.5 text-right text-xs">
-                    <div className="flex justify-between text-slate-500">
-                      <span>Subtotal:</span>
-                      <span className="font-semibold">${Number(doc.data?.subtotal || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-500">
-                      <span>Tax / VAT:</span>
-                      <span className="font-semibold">${Number(doc.data?.tax || 0).toFixed(2)}</span>
-                    </div>
-                    <div 
-                      className={`flex justify-between text-sm font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-300 dark:border-slate-800 ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-amber' : ''}`}
-                      onMouseEnter={() => setHighlightedField('total')}
-                      onMouseLeave={() => setHighlightedField(null)}
-                    >
-                      <span>Total Due:</span>
-                      <span>${Number(doc.data?.total || 0).toFixed(2)}</span>
+                  {/* Totals Strip */}
+                  <div className="pt-4 border-t border-dashed border-slate-300 dark:border-slate-800 flex justify-end">
+                    <div className="w-56 flex flex-col gap-1.5 text-right text-xs">
+                      <div className="flex justify-between text-slate-500">
+                        <span>Subtotal:</span>
+                        <span className="font-semibold">${Number(doc.data?.subtotal || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-500">
+                        <span>Tax / VAT:</span>
+                        <span className="font-semibold">${Number(doc.data?.tax || 0).toFixed(2)}</span>
+                      </div>
+                      <div 
+                        className={`flex justify-between text-sm font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-300 dark:border-slate-800 ${showBoundingBoxes ? 'ocr-bbox ocr-bbox-amber' : ''}`}
+                        onMouseEnter={() => setHighlightedField('total')}
+                        onMouseLeave={() => setHighlightedField(null)}
+                      >
+                        <span>Total Due:</span>
+                        <span>${Number(doc.data?.total || 0).toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )
             )}
 
             {activeTab === 'ocr' && (
