@@ -7,7 +7,8 @@ class LineItem(BaseModel):
     unitPrice: float = Field(default=0.0, description="Unit price or rate")
 
 class ExtractedData(BaseModel):
-    docType: str = Field(default="Invoice", description="Classified type of document (Invoice, Receipt, PO, Expense Log)")
+    isFinancialDocument: bool = Field(default=True, description="Whether document is recognized as a financial billing document")
+    docType: str = Field(default="Invoice", description="Classified type of document (Invoice, Receipt, PO, Expense Log, Non-Financial Document)")
     invoiceNo: Optional[str] = Field(default="", description="Invoice or reference number")
     vendor: Optional[str] = Field(default="", description="Vendor, supplier, or issuer name")
     customer: Optional[str] = Field(default="", description="Customer, buyer, or client name")
@@ -17,6 +18,7 @@ class ExtractedData(BaseModel):
     tax: float = Field(default=0.0, description="Tax or VAT amount")
     total: float = Field(default=0.0, description="Total due amount")
     lineItems: List[LineItem] = Field(default_factory=list, description="Extracted line item details")
+    notes: Optional[str] = Field(default="", description="Classification or extraction notes")
 
 class ValidationCheck(BaseModel):
     id: str

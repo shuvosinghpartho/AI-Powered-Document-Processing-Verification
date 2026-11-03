@@ -195,18 +195,47 @@ export const FORMAT_DISTRIBUTION = [
   { label: 'CSV Data Files', value: 10, color: '#f59e0b' },
 ];
 
-// 4-Rule Deterministic Validation Engine
+const GENERIC_PLACEHOLDERS = new Set([
+  'inv-001', '123', '123456', '[123456]', 'xxxxx', 'xxx', 'temp', 'n/a', 'unknown', 'none', '0', '000'
+]);
+
+// Deterministic Autonomous Validation Engine
 export function runValidationRules(doc, allDocs = []) {
   const d = doc.data || {};
   const errors = [];
   const checks = [];
+
+  // 0. Document Authenticity Check
+  const isFinancial = d.isFinancialDocument !== false;
+  const docType = String(d.docType || 'Invoice').trim();
+  const isNonFinancial = !isFinancial || ['Non-Financial Document', 'Unrelated Image', 'Academic Paper', 'Corrupted File'].includes(docType);
+
+  if (isNonFinancial) {
+    checks.push({
+      id: 'rule-authenticity',
+      title: 'Document Authenticity Check',
+      passed: false,
+      message: `Rejected: Document is not a recognized commercial invoice or receipt (${docType})`
+    });
+    errors.push(`Document Authenticity Check: Rejected - Not a financial invoice (${docType})`);
+  } else {
+    checks.push({
+      id: 'rule-authenticity',
+      title: 'Document Authenticity Check',
+      passed: true,
+      message: `Authentic financial document verified (${docType})`
+    });
+  }
 
   // 1. Missing Fields Check
   const missing = [];
   if (!d.invoiceNo || !d.invoiceNo.trim()) missing.push('Invoice / Ref #');
   if (!d.vendor || !d.vendor.trim()) missing.push('Vendor Name');
   if (!d.issueDate || !d.issueDate.trim()) missing.push('Issue Date');
-  if (d.total === null || d.total === undefined || isNaN(Number(d.total))) missing.push('Total Amount');
+  const numTotal = Number(d.total);
+  if (d.total === null || d.total === undefined || isNaN(numTotal) || numTotal <= 0) {
+    missing.push('Valid Total Amount (> $0.00)');
+  }
 
   const rule1Passed = missing.length === 0;
   if (!rule1Passed) {
@@ -227,20 +256,29 @@ export function runValidationRules(doc, allDocs = []) {
   const tax = Number(d.tax) || 0;
   const total = Number(d.total) || 0;
 
-  const hasLineItems = (d.lineItems || []).length > 0;
-  const linesMatchSubtotal = !hasLineItems || Math.abs(lineSum - subtotal) < 0.05;
-  const subtotalPlusTaxMatchesTotal = Math.abs((subtotal + tax) - total) < 0.05;
-  const rule2Passed = linesMatchSubtotal && subtotalPlusTaxMatchesTotal;
+  let rule2Passed = false;
+  let rule2Message = '';
 
-  let rule2Message = `Subtotal ($${subtotal.toFixed(2)}) + Tax ($${tax.toFixed(2)}) = Total ($${total.toFixed(2)})`;
-  if (!linesMatchSubtotal) {
-    const diff = (lineSum - subtotal).toFixed(2);
-    rule2Message = `Line items sum ($${lineSum.toFixed(2)}) ≠ Subtotal ($${subtotal.toFixed(2)}) [Diff: $${diff}]`;
-    errors.push(rule2Message);
-  } else if (!subtotalPlusTaxMatchesTotal) {
-    const expected = (subtotal + tax).toFixed(2);
-    rule2Message = `Math Mismatch: Subtotal ($${subtotal.toFixed(2)}) + Tax ($${tax.toFixed(2)}) = $${expected}, but recorded Total is $${total.toFixed(2)}`;
-    errors.push(rule2Message);
+  if (isNonFinancial || total <= 0) {
+    rule2Passed = false;
+    rule2Message = 'No positive financial amounts recorded to calculate';
+    errors.push('Numeric Sanity: No valid monetary values found');
+  } else {
+    const hasLineItems = (d.lineItems || []).length > 0;
+    const linesMatchSubtotal = !hasLineItems || Math.abs(lineSum - subtotal) < 0.05;
+    const subtotalPlusTaxMatchesTotal = Math.abs((subtotal + tax) - total) < 0.05;
+    rule2Passed = linesMatchSubtotal && subtotalPlusTaxMatchesTotal;
+
+    rule2Message = `Subtotal ($${subtotal.toFixed(2)}) + Tax ($${tax.toFixed(2)}) = Total ($${total.toFixed(2)})`;
+    if (!linesMatchSubtotal) {
+      const diff = (lineSum - subtotal).toFixed(2);
+      rule2Message = `Line items sum ($${lineSum.toFixed(2)}) ≠ Subtotal ($${subtotal.toFixed(2)}) [Diff: $${diff}]`;
+      errors.push(rule2Message);
+    } else if (!subtotalPlusTaxMatchesTotal) {
+      const expected = (subtotal + tax).toFixed(2);
+      rule2Message = `Math Mismatch: Subtotal ($${subtotal.toFixed(2)}) + Tax ($${tax.toFixed(2)}) = $${expected}, but recorded Total is $${total.toFixed(2)}`;
+      errors.push(rule2Message);
+    }
   }
 
   checks.push({
@@ -250,9 +288,39 @@ export function runValidationRules(doc, allDocs = []) {
     message: rule2Message
   });
 
-  // 3. Date Validity Check
-  let rule3Passed = false;
-  let rule3Message = 'Invalid date format';
+  // 3. Duplicate Check
+  let rule3Passed = true;
+  let rule3Message = 'No duplicate detected in repository';
+  const cleanInv = (d.invoiceNo || '').trim().toLowerCase();
+  const isPlaceholder = GENERIC_PLACEHOLDERS.has(cleanInv) || cleanInv.length < 3;
+
+  if (cleanInv && !isPlaceholder && d.vendor && total > 0 && allDocs.length > 0) {
+    const dupe = allDocs.find(other => 
+      other.id !== doc.id &&
+      other.filename !== doc.filename && 
+      other.data && 
+      other.data.invoiceNo && 
+      other.data.invoiceNo.trim().toLowerCase() === cleanInv &&
+      other.data.vendor && 
+      other.data.vendor.trim().toLowerCase() === (d.vendor || '').trim().toLowerCase() &&
+      (Math.abs((Number(other.data.total) || 0) - total) < 0.05 || (Number(other.data.total) || 0) === 0)
+    );
+    if (dupe) {
+      rule3Passed = false;
+      rule3Message = `Duplicate invoice #${d.invoiceNo} already exists in ${dupe.filename}`;
+      errors.push(rule3Message);
+    }
+  }
+  checks.push({
+    id: 'rule-duplicate',
+    title: 'Duplicate Detection Check',
+    passed: rule3Passed,
+    message: rule3Message
+  });
+
+  // 4. Date Logic Check
+  let rule4Passed = false;
+  let rule4Message = 'Invalid date format';
   if (d.issueDate && typeof d.issueDate === 'string') {
     const parsedDate = new Date(d.issueDate);
     if (!isNaN(parsedDate.getTime())) {
@@ -260,45 +328,20 @@ export function runValidationRules(doc, allDocs = []) {
       const maxFuture = new Date();
       maxFuture.setDate(now.getDate() + 45);
       if (parsedDate > maxFuture) {
-        rule3Passed = false;
-        rule3Message = `Issue date (${d.issueDate}) is abnormally far in the future`;
-        errors.push(rule3Message);
+        rule4Passed = false;
+        rule4Message = `Issue date (${d.issueDate}) is abnormally far in the future`;
+        errors.push(rule4Message);
       } else {
-        rule3Passed = true;
-        rule3Message = `Valid calendar date (${d.issueDate})`;
+        rule4Passed = true;
+        rule4Message = `Valid calendar date (${d.issueDate})`;
       }
     }
   } else {
-    rule3Message = 'No issue date provided';
+    rule4Message = 'No issue date provided';
   }
   checks.push({
     id: 'rule-date',
     title: 'Date Logic Check',
-    passed: rule3Passed,
-    message: rule3Message
-  });
-
-  // 4. Duplicate Check
-  let rule4Passed = true;
-  let rule4Message = 'No duplicate detected in repository';
-  if (d.invoiceNo && d.invoiceNo.trim() && allDocs.length > 0) {
-    const dupe = allDocs.find(other => 
-      other.id !== doc.id && 
-      other.data && 
-      other.data.invoiceNo && 
-      other.data.invoiceNo.trim().toLowerCase() === d.invoiceNo.trim().toLowerCase() &&
-      other.data.vendor && 
-      other.data.vendor.trim().toLowerCase() === (d.vendor || '').trim().toLowerCase()
-    );
-    if (dupe) {
-      rule4Passed = false;
-      rule4Message = `Duplicate invoice #${d.invoiceNo} already exists in ${dupe.filename}`;
-      errors.push(rule4Message);
-    }
-  }
-  checks.push({
-    id: 'rule-duplicate',
-    title: 'Duplicate Detection Check',
     passed: rule4Passed,
     message: rule4Message
   });

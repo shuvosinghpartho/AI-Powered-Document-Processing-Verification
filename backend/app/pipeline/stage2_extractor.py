@@ -99,7 +99,7 @@ def extract_text_and_confidence(file_path: str, format_type: str) -> Tuple[str, 
                     avg_c = (sum(confidences) / max(1, len(confidences))) * 100
                     return ("\n".join(ocr_lines), "EasyOCR Scanned PDF Engine", round(avg_c, 1))
                 else:
-                    return ("Scanned PDF document detected. Processed via Vision OCR Pipeline.", "PyMuPDF + Vision OCR", 88.0)
+                    return ("", "PyMuPDF + Vision OCR (No text detected)", 0.0)
         except Exception as e:
             return (f"[CORRUPTED_FILE: PDF parsing failed - {str(e)}]", "PyMuPDF Error", 0.0)
 
@@ -211,9 +211,9 @@ def extract_text_and_confidence(file_path: str, format_type: str) -> Tuple[str, 
                 )
                 return (ocr_dump, "EasyOCR Vision Engine", 86.4)
             else:
-                return (info_text + f"Extracted visual text from image scan: {path.name}", "EasyOCR Vision Engine", 88.0)
+                return ("", "EasyOCR Vision Engine (No text detected)", 0.0)
         except Exception as e:
-            return (f"Vision OCR Extraction: {path.name}", "Vision OCR Engine", 85.0)
+            return (f"[CORRUPTED_FILE: Image parsing error - {str(e)}]", "Vision OCR Error", 0.0)
 
-    return (f"Text parsed from {path.name}", "Generic Parser", 90.0)
+    return ("", "Unknown Parser", 0.0)
 

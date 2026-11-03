@@ -122,5 +122,49 @@ def test_csv_fast_path_extraction(tmp_path):
     assert data["total"] == 715.0
     assert len(data["lineItems"]) >= 2
 
+def test_validation_flags_non_financial_document():
+    """Verify Rule 0 flags non-financial documents (e.g. academic paper, cat photo)."""
+    non_fin_data = {
+        "isFinancialDocument": False,
+        "docType": "Non-Financial Document",
+        "invoiceNo": "",
+        "vendor": "",
+        "issueDate": "",
+        "total": 0.0,
+        "lineItems": []
+    }
+    report = evaluate_validation(non_fin_data)
+    assert report.passed is False
+    assert report.status == "FLAGGED"
+    auth_check = next((c for c in report.checks if c.id == "rule-authenticity"), None)
+    assert auth_check is not None
+    assert auth_check.passed is False
+    assert "Rejected" in auth_check.message
+
+def test_smart_duplicate_ignores_same_filename_reupload():
+    """Verify smart duplicate detection does not flag a file against itself upon re-upload."""
+    from app.database import get_connection
+    conn = get_connection()
+    doc_data = {
+        "isFinancialDocument": True,
+        "docType": "Invoice",
+        "invoiceNo": "INV-2026-0891",
+        "vendor": "Nimbus Cloud Systems Ltd.",
+        "issueDate": "2026-10-31",
+        "subtotal": 1500.0,
+        "tax": 150.0,
+        "total": 1650.0,
+        "lineItems": [{"description": "Cloud VM", "qty": 1, "unitPrice": 1500.0}]
+    }
+    # doc-101 is 'INV-2026-0891_Digital.pdf' in DB.
+    # Evaluating doc-101 with conn should pass duplicate check (not flag against itself)
+    report = evaluate_validation(doc_data, doc_id="doc-101", conn=conn)
+    conn.close()
+
+    dupe_check = next((c for c in report.checks if c.id == "rule-duplicate"), None)
+    assert dupe_check is not None
+    assert dupe_check.passed is True
+
+
 
 

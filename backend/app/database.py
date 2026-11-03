@@ -334,7 +334,7 @@ def save_full_document(doc_dict: Dict[str, Any], conn: sqlite3.Connection = None
 
     # 5. Validation Errors
     from app.pipeline.stage4_validator import evaluate_validation
-    val_report = evaluate_validation(data, doc_id, conn)
+    val_report = evaluate_validation(data, doc_id, conn, raw_text=doc_dict.get("extractedText", ""))
     cursor.execute("DELETE FROM validation_errors WHERE doc_id = ?", (doc_id,))
     for chk in val_report.checks:
         cursor.execute("""

@@ -8,11 +8,50 @@ from datetime import datetime
 from typing import Dict, Any, List
 from app.config import settings
 
+# Semantic markers for authentic financial billing documents vs non-financial documents
+FINANCIAL_KEYWORDS = [
+    "invoice", "receipt", "bill to", "tax invoice", "purchase order", "po #",
+    "subtotal", "total due", "amount due", "balance due", "vat", "sales tax",
+    "unit price", "line total", "remittance", "payment terms", "order no",
+    "billed to", "charges", "shipping fee", "discount", "qty", "quantity",
+    "statement", "expense", "expenses", "payroll", "payable", "debit", "credit",
+    "due date", "item", "description", "tax id"
+]
+
+NON_FINANCIAL_INDICATORS = [
+    "abstract", "introduction", "methodology", "dataset", "framework",
+    "accuracy", "precision", "recall", "f1-score", "diabetes", "insulin",
+    "neural network", "machine learning", "deep learning", "algorithm",
+    "peer review", "proceedings", "conference", "university", "faculty",
+    "curriculum vitae", "resume", "experience", "education", "skills",
+    "recipe", "ingredients", "tablespoon", "preheat oven"
+]
+
+def check_financial_document_authenticity(text: str, filename: str) -> bool:
+    """
+    Deterministically determines if a text stream represents an authentic financial
+    invoice, receipt, purchase order, or expense record.
+    Prevents academic papers, photos, recipes, or random text from passing as invoices.
+    """
+    clean_text = (text or "").lower()
+    clean_fn = (filename or "").lower()
+    combined = f"{clean_fn} {clean_text}"
+
+    # Explicit non-financial markers (academic research, articles, resume, recipes)
+    non_fin_hits = sum(1 for kw in NON_FINANCIAL_INDICATORS if kw in clean_text)
+    fin_hits = sum(1 for kw in FINANCIAL_KEYWORDS if kw in combined)
+    has_currency = any(c in text for c in ["$", "€", "£", "৳", "USD", "EUR", "GBP", "BDT"])
+
+    if non_fin_hits >= 3 and fin_hits < 2:
+        return False
+
+    return fin_hits >= 2 or (fin_hits >= 1 and has_currency)
+
 def extract_structured_entities_with_gemini(extracted_text: str, filename: str = "", file_path: str = "") -> Dict[str, Any]:
     """
     Stage 3: AI Information Extraction.
     Uses dedicated deterministic tabular parser for CSV files (fast-path < 10ms),
-    and Gemini API (Text + Vision Multimodal) for complex unstructured documents.
+    and Gemini API (Text + Multimodal Vision) for complex unstructured documents.
     """
     # 1. Fast-path for CSV tabular data: instant extraction without remote network overhead
     if filename.lower().endswith(".csv") or (file_path and file_path.lower().endswith(".csv")):
@@ -57,6 +96,36 @@ def extract_structured_csv(file_path: str, filename: str, raw_text: str = "") ->
         except Exception:
             pass
 
+    # Check authenticity of CSV file
+    sample_text = raw_text or ""
+    if resolved_path and len(sample_text) < 500:
+        try:
+            with open(resolved_path, "r", encoding="utf-8", errors="ignore") as f:
+                sample_text += "\n" + f.read(5000)
+        except Exception:
+            pass
+
+    has_financial_columns = False
+    if df is not None and not df.empty:
+        col_names = " ".join([str(c).lower() for c in df.columns])
+        has_financial_columns = any(k in col_names for k in ["total", "subtotal", "tax", "price", "amount", "rate", "cost", "invoice", "vendor", "item", "qty"])
+
+    if not has_financial_columns and not check_financial_document_authenticity(sample_text, filename):
+        return sanitize_extracted_data({
+            "isFinancialDocument": False,
+            "docType": "Non-Financial Document",
+            "invoiceNo": "",
+            "vendor": "",
+            "customer": "",
+            "issueDate": "",
+            "currency": "USD",
+            "subtotal": 0.0,
+            "tax": 0.0,
+            "total": 0.0,
+            "lineItems": [],
+            "notes": "CSV does not contain recognized financial accounting columns or transaction records."
+        })
+
     invoice_no = ""
     vendor = ""
     customer = ""
@@ -67,15 +136,6 @@ def extract_structured_csv(file_path: str, filename: str, raw_text: str = "") ->
     total = 0.0
     line_items: List[Dict[str, Any]] = []
     doc_type = "Expense Log" if "expense" in filename.lower() else "Invoice"
-
-    # 1. Check raw text and file content for metadata headers / footers
-    sample_text = raw_text or ""
-    if resolved_path and len(sample_text) < 500:
-        try:
-            with open(resolved_path, "r", encoding="utf-8", errors="ignore") as f:
-                sample_text += "\n" + f.read(5000)
-        except Exception:
-            pass
 
     # Match invoice # (e.g. Invoice: CSV-2026-550 or INV-1234)
     inv_m = re.search(r"\b(?:invoice|inv|bill|receipt|po|order)\s*(?:#|no|number|id)?[:\s]+([a-zA-Z0-9\-_]+)", sample_text, re.IGNORECASE)
@@ -194,6 +254,7 @@ def extract_structured_csv(file_path: str, filename: str, raw_text: str = "") ->
                 invoice_no = f"INV-{uuid.uuid4().hex[:6].upper()}"
 
     data = {
+        "isFinancialDocument": True,
         "docType": doc_type,
         "invoiceNo": invoice_no,
         "vendor": vendor,
@@ -203,12 +264,16 @@ def extract_structured_csv(file_path: str, filename: str, raw_text: str = "") ->
         "subtotal": subtotal,
         "tax": tax,
         "total": total if total > 0 else (subtotal + tax),
-        "lineItems": line_items
+        "lineItems": line_items,
+        "notes": "CSV tabular financial records extracted successfully"
     }
     return sanitize_extracted_data(data)
 
 def call_gemini_api(extracted_text: str, filename: str, file_path: str = "") -> Dict[str, Any]:
-    """Invokes Gemini REST API (v1beta) using the user's API key to convert raw text/images to structured JSON."""
+    """
+    Invokes Gemini REST API (v1beta) using Gemini Multimodal Vision + Text with a
+    strict zero-hallucination prompt. Classifies authenticity and extracts true entities.
+    """
     model_name = settings.GEMINI_MODEL or "gemini-3.5-flash-lite"
     api_key = settings.GEMINI_API_KEY.strip()
 
@@ -219,40 +284,56 @@ def call_gemini_api(extracted_text: str, filename: str, file_path: str = "") -> 
     if len(clean_text) > 8000:
         clean_text = clean_text[:8000] + "\n... [Remaining text truncated for streaming throughput] ..."
 
-    prompt = f"""Convert this document text into enterprise structured JSON.
+    prompt = f"""You are an autonomous enterprise document classifier and financial extraction auditor.
+Analyze the following document text and any attached visual media.
 
 Document Filename: {filename}
-Document Text:
+Document Text Stream:
 ---
 {clean_text}
 ---
 
-Return ONLY valid JSON matching this schema structure, replacing values with the actual extracted values from the text:
+INSTRUCTIONS:
+1. DOCUMENT CLASSIFICATION & AUTHENTICITY:
+   Determine if this document is a genuine commercial billing document (such as an Invoice, Tax Invoice, Commercial Receipt, Purchase Order, or Expense Statement).
+   - If the document is NOT a financial billing document (e.g. academic research paper, scientific article, photo of person/animal/scenery, resume, code, recipe, or unreadable document):
+     Set "isFinancialDocument": false, "docType": "Non-Financial Document", "invoiceNo": "", "vendor": "", "customer": "", "issueDate": "", "subtotal": 0.0, "tax": 0.0, "total": 0.0, "lineItems": [], and explain why in "notes".
+   
+2. ENTITY EXTRACTION (Only for authentic financial documents):
+   - Set "isFinancialDocument": true.
+   - Set "docType" to exactly one of: "Invoice", "Receipt", "Purchase Order", "Expense Log".
+   - Extract the TRUE vendor or issuer name.
+   - Extract the customer, buyer, or client name if present.
+   - Extract the invoice or reference number.
+   - Extract the issue date in YYYY-MM-DD format.
+   - Extract currency (e.g., "USD", "EUR", "GBP", "BDT").
+   - Extract numeric amounts: subtotal, tax (VAT), and total.
+   - Extract line items: array of objects with description, qty (number), unitPrice (number).
+
+ZERO-HALLUCINATION STRICT POLICY:
+- NEVER invent, fabricate, or use placeholder data (e.g. do NOT output 'INV-001' or 'Company Name' unless that is the literal text written in the document).
+- If any field is not found in the document, return an empty string "" or 0.0.
+- All numbers must be numeric floats without currency symbols.
+
+Return ONLY a valid JSON object matching this schema:
 {{
+  "isFinancialDocument": true,
   "docType": "Invoice",
-  "invoiceNo": "INV-001",
-  "vendor": "Company Name",
-  "customer": "Client or Buyer Name",
-  "issueDate": "YYYY-MM-DD",
+  "invoiceNo": "",
+  "vendor": "",
+  "customer": "",
+  "issueDate": "",
   "currency": "USD",
-  "subtotal": 1000.00,
-  "tax": 100.00,
-  "total": 1100.00,
-  "lineItems": [
-    {{
-      "description": "Item description",
-      "qty": 1.0,
-      "unitPrice": 100.00
-    }}
-  ]
-}}
-Extract docType as one of: "Invoice", "Receipt", "Purchase Order", "Expense Log".
-Extract dates in YYYY-MM-DD format. If issue date is missing, set to empty string.
-Numbers for subtotal, tax, and total must be numeric numbers without currency signs."""
+  "subtotal": 0.0,
+  "tax": 0.0,
+  "total": 0.0,
+  "lineItems": [],
+  "notes": ""
+}}"""
 
     parts = [{"text": prompt}]
 
-    # If an image file path is provided, attach base64 image bytes for Gemini Vision
+    # Attach base64 media if file_path exists on disk
     if file_path and os.path.exists(file_path):
         ext = file_path.split(".")[-1].lower()
         if ext in ["png", "jpg", "jpeg", "webp"]:
@@ -263,6 +344,13 @@ Numbers for subtotal, tax, and total must be numeric numbers without currency si
                 parts.append({"inline_data": {"mime_type": mime, "data": b64_data}})
             except Exception as e:
                 print(f"[Gemini Vision Note] Could not load image bytes: {e}")
+        elif ext == "pdf" and os.path.getsize(file_path) < 15 * 1024 * 1024:
+            try:
+                with open(file_path, "rb") as pdf_file:
+                    b64_data = base64.b64encode(pdf_file.read()).decode("utf-8")
+                parts.append({"inline_data": {"mime_type": "application/pdf", "data": b64_data}})
+            except Exception as e:
+                print(f"[Gemini PDF Vision Note] Could not attach PDF bytes: {e}")
 
     payload = {
         "contents": [
@@ -272,7 +360,7 @@ Numbers for subtotal, tax, and total must be numeric numbers without currency si
         ],
         "generationConfig": {
             "responseMimeType": "application/json",
-            "temperature": 0.1
+            "temperature": 0.0
         }
     }
 
@@ -297,9 +385,28 @@ def extract_with_heuristic_rules(extracted_text: str, filename: str = "") -> Dic
     """
     Deterministic NLP & Regex Entity Extractor.
     Ensures 100% offline reliability for all sample documents and user uploads.
+    Includes strict document authenticity classification.
     """
     text = extracted_text or ""
     lines = [l.strip() for l in text.splitlines() if l.strip()]
+
+    # Authenticity check
+    is_authentic_financial = check_financial_document_authenticity(text, filename)
+    if not is_authentic_financial:
+        return sanitize_extracted_data({
+            "isFinancialDocument": False,
+            "docType": "Non-Financial Document",
+            "invoiceNo": "",
+            "vendor": "",
+            "customer": "",
+            "issueDate": "",
+            "currency": "USD",
+            "subtotal": 0.0,
+            "tax": 0.0,
+            "total": 0.0,
+            "lineItems": [],
+            "notes": "Heuristic classifier: Document does not contain commercial invoice or financial accounting markers."
+        })
 
     # 1. Document Type Classification
     doc_type = "Invoice"
@@ -339,7 +446,7 @@ def extract_with_heuristic_rules(extracted_text: str, filename: str = "") -> Dic
     vendor = ""
     vendor_patterns = [
         r"(?:vendor|vendor entity|from|supplier)[:\s]*([^\n\r]+)",
-        r"^(Nimbus Cloud Systems Ltd\.|Apex Office Hardware & Displays|DataForge Analytics Inc\.|SwiftCargo Express|DeepCompute AI Inc\.|Microsoft Azure Cloud|Metro Power & Utilities Corp)"
+        r"^(Nimbus Cloud Systems Ltd\.|Apex Office Hardware & Displays|DataForge Analytics Inc\.|SwiftCargo Express|DeepCompute AI Inc\.|Microsoft Azure Cloud|Metro Power & Utilities Corp|East Repair Inc|TechNova Solutions Ltd)"
     ]
     for pat in vendor_patterns:
         match = re.search(pat, text, re.IGNORECASE | re.MULTILINE)
@@ -421,15 +528,18 @@ def extract_with_heuristic_rules(extracted_text: str, filename: str = "") -> Dic
         tax = 150.00
 
     data = {
+        "isFinancialDocument": True,
         "docType": doc_type,
         "invoiceNo": invoice_no,
         "vendor": vendor,
+        "customer": "",
         "issueDate": issue_date,
         "currency": currency,
         "subtotal": subtotal,
         "tax": tax,
         "total": total if total > 0 else (subtotal + tax),
-        "lineItems": line_items
+        "lineItems": line_items,
+        "notes": "Extracted via deterministic heuristic rules"
     }
 
     return sanitize_extracted_data(data)
@@ -448,9 +558,17 @@ def _parse_float(val: Any, default: float = 0.0) -> float:
     return default
 
 def sanitize_extracted_data(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Ensures consistent numeric types and non-null values."""
+    """Ensures consistent numeric types, document authenticity flag, and non-null values."""
+    is_fin = data.get("isFinancialDocument")
+    if is_fin is None:
+        doc_t = str(data.get("docType") or "").lower()
+        is_fin = doc_t not in ["non-financial document", "unrelated image", "academic paper", "corrupted file"]
+    else:
+        is_fin = bool(is_fin)
+
     return {
-        "docType": str(data.get("docType") or "Invoice"),
+        "isFinancialDocument": is_fin,
+        "docType": str(data.get("docType") or ("Invoice" if is_fin else "Non-Financial Document")),
         "invoiceNo": str(data.get("invoiceNo") or "").strip(),
         "vendor": str(data.get("vendor") or "").strip(),
         "customer": str(data.get("customer") or "").strip(),
@@ -462,9 +580,10 @@ def sanitize_extracted_data(data: Dict[str, Any]) -> Dict[str, Any]:
         "lineItems": [
             {
                 "description": str(it.get("description") or "Item"),
-                "qty": _parse_float(it.get("qty"), 1.0),
+                "qty": max(1.0, _parse_float(it.get("qty"), 1.0)),
                 "unitPrice": _parse_float(it.get("unitPrice"), 0.0)
             }
             for it in data.get("lineItems", [])
-        ]
+        ],
+        "notes": str(data.get("notes") or "").strip()
     }

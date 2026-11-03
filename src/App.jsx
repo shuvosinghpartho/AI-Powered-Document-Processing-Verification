@@ -328,6 +328,7 @@ export default function App() {
       if (['CSV'].includes(ext)) format = 'CSV';
 
       const docId = `doc-${Date.now()}-${idx}`;
+      const isLikelyInvoice = /(invoice|receipt|bill|po[-_]|order|expense|cost|charge|financial)/i.test(file.name);
       return {
         id: docId,
         filename: file.name,
@@ -335,14 +336,17 @@ export default function App() {
         subType: `${format} File`,
         sizeKb: Math.round(file.size / 1024) || 150,
         engine: format === 'IMAGE' ? 'EasyOCR Vision Engine' : (format === 'PDF' ? 'PyMuPDF Parser' : 'Pandas Tabular'),
-        ocrConfidence: 95.2,
+        ocrConfidence: isLikelyInvoice ? 95.2 : 40.0,
         stage: 1,
         progress: 15,
         status: 'PROCESSING',
         uploadTime: new Date().toLocaleString(),
-        semanticTags: ['uploaded document', file.name.toLowerCase()],
-        extractedText: `Extracted text stream from ${file.name}...\nProcessed with Document Intelligence Pipeline.`,
-        data: {
+        semanticTags: isLikelyInvoice ? ['uploaded document', 'invoice'] : ['uploaded document', 'non-financial'],
+        extractedText: isLikelyInvoice
+          ? `Extracted text stream from ${file.name}...\nProcessed with Document Intelligence Pipeline.`
+          : `Unrelated media or document content extracted from ${file.name}.\nNo commercial billing or invoice transactions detected.`,
+        data: isLikelyInvoice ? {
+          isFinancialDocument: true,
           docType: 'Invoice',
           invoiceNo: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
           vendor: 'Enterprise Cloud Systems LLC',
@@ -354,6 +358,18 @@ export default function App() {
           lineItems: [
             { description: 'Cloud AI Document Inference Compute Node', qty: 1, unitPrice: 820.00 }
           ]
+        } : {
+          isFinancialDocument: false,
+          docType: 'Non-Financial Document',
+          invoiceNo: '',
+          vendor: '',
+          customer: '',
+          issueDate: '',
+          currency: 'USD',
+          subtotal: 0,
+          tax: 0,
+          total: 0,
+          lineItems: []
         },
         history: [
           { time: new Date().toLocaleTimeString(), stage: 'Stage 1: Document Ingest', engine: 'Upload Gateway', detail: `Received ${file.name}` }
