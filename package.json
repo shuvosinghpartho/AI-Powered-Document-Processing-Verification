@@ -5,6 +5,7 @@
   "private": true,
   "description": "AI-Powered Document Intelligence System with Human-in-the-Loop Validation",
   "scripts": {
+    "start": "./start.sh",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
