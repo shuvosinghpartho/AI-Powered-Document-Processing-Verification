@@ -20,12 +20,13 @@
 
 ```mermaid
 flowchart TD
-    classDef client fill:#1c3461,stroke:#2f5fb0,stroke-width:2px,color:#ffffff;
+    classDef client fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#ffffff;
     classDef frontend fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#ffffff;
     classDef backend fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#ffffff;
     classDef db fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ffffff;
-    classDef gateway fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
-    classDef stage fill:#111827,stroke:#64748b,stroke-width:1.5px,color:#ffffff;
+    classDef pipeline fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#38bdf8;
+    classDef stage fill:#0f172a,stroke:#64748b,stroke-width:1.5px,color:#f8fafc;
+    classDef audit fill:#1e293b,stroke:#a855f7,stroke-width:2px,color:#e9d5ff;
     classDef valid fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ffffff;
     classDef flagged fill:#881337,stroke:#f43f5e,stroke-width:2px,color:#ffffff;
 
@@ -33,20 +34,21 @@ flowchart TD
     Dashboard <-->|"REST APIs / Async Status Polling"| Backend["⚡ FastAPI REST Backend"]:::backend
     Backend <-->|"Thread-Safe Concurrent WAL Mode"| Database[("🗄️ SQLite Database")]:::db
 
-    Dashboard -->|"Multi-File Upload"| Gateway["⚙️ Multi-Format Ingestion & Processing Gateway"]:::gateway
-    Backend -->|"Asynchronous Task Workers"| Gateway
+    Dashboard -->|"Multi-File Upload"| Pipeline["⚙️ 4-Stage Core Autonomous Processing & Validation Pipeline"]:::pipeline
+    Backend -->|"Asynchronous Task Workers"| Pipeline
 
-    Gateway --> S1["<b>1. Document Ingestion</b><br/>• Multi-Page PDF (Digital & Scanned)<br/>• Images (PNG, JPG, TIFF)<br/>• Excel Spreadsheets (XLSX, XLS)<br/>• Delimited CSV Streams<br/>• 0-Byte & Corrupted File Guard"]:::stage
-    Gateway --> S2["<b>2. Text Extraction & Vision OCR</b><br/>• PyMuPDF fitz (Digital Text & Pixmaps)<br/>• EasyOCR (Deep Learning Vision Model)<br/>• Pandas & OpenPyXL (Multi-Sheet Workbooks)<br/>• OpenCV CLAHE Contrast Preprocessing"]:::stage
-    Gateway --> S3["<b>3. AI Information Extraction</b><br/>• Google Gemini 3.5 Flash Lite LLM<br/>• 9-Field Canonical Structured JSON<br/>• Resilient Deterministic Fallback<br/>• Zero Hallucination Strict Policy"]:::stage
-    Gateway --> S4["<b>4. Deterministic Validation & Reconciliation</b><br/>• Rule 1: Missing Required Fields Check<br/>• Rule 2: Numeric Sanity (Lines == Subtotal, Subtotal + Tax == Total)<br/>• Rule 3: Historical Duplicate Invoice Collision Detection<br/>• Rule 4: Data Consistency & ISO-8601 Calendar Logic<br/>• Cross-Verification: PDF-PDF & PDF-Excel Financial Reconciliation"]:::stage
+    Pipeline --> S1["<b>1. Document Ingestion</b><br/>• Multi-Page PDF (Digi/Scan)<br/>• Images (PNG, JPG, TIFF)<br/>• Excel Spreadsheets (XLSX)<br/>• Delimited CSV Streams<br/>• 0-Byte & Corrupt Guard"]:::stage
+    Pipeline --> S2["<b>2. Text Extraction & Vision OCR</b><br/>• PyMuPDF (Vector Digital)<br/>• EasyOCR (Deep Vision)<br/>• Pandas & OpenPyXL Parsing<br/>• Multi-Format Stream Adapter<br/>• CLAHE Contrast Enhancer"]:::stage
+    Pipeline --> S3["<b>3. AI Information Extraction</b><br/>• Google Gemini 3.5 Flash Lite<br/>• 9-Field Canonical JSON Schema<br/>• Resilient Deterministic NLP<br/>• Mathematical Normalization<br/>• Zero Hallucination Policy"]:::stage
+    Pipeline --> S4["<b>4. Validation & Cross-Verification</b><br/>• Rule 1: Missing Fields Audit<br/>• Rule 2: Numeric Sanity Check<br/>• Rule 3: Duplicate Hash Detection<br/>• Rule 4: ISO-8601 Date Integrity<br/>• Twin-Doc Cross Reconciliation"]:::stage
 
-    S1 ~~~ S2 ~~~ S3 ~~~ S4
+    S1 --> Audit["🔍 Deterministic Audit & Validation Triage"]:::audit
+    S2 --> Audit
+    S3 --> Audit
+    S4 --> Audit
 
-    S1 & S2 & S3 & S4 --> Audit["🔍 Deterministic Audit & Validation Triage"]:::gateway
-
-    Audit -->|"100% Validated (Clean Record)"| ValidNode["✅ VALIDATED RECORD<br/>• SQLite WAL Database Storage<br/>• Sub-ms Exact SQL LIKE Search<br/>• Semantic Vector Cosine Index"]:::valid
-    Audit -->|"Discrepancy / Missing Attribute / Duplicate"| FlaggedNode["⚠️ FLAGGED FOR HUMAN REVIEW<br/>• Side-by-Side Visual Document Inspector<br/>• Live Inline Field Correction Studio<br/>• One-Click Failed-Job Reprocessing"]:::flagged
+    Audit -->|"100% Validated (Clean Record)"| ValidNode["✅ VALIDATED RECORD<br/>• SQLite WAL Storage<br/>• Sub-ms SQL Search<br/>• Vector Cosine Index"]:::valid
+    Audit -->|"Discrepancy / Math Error"| FlaggedNode["⚠️ FLAGGED FOR REVIEW<br/>• Side-by-Side Inspector<br/>• Inline Correction Studio<br/>• One-Click Reprocessing"]:::flagged
 ```
 
 ### ⚙️ Parallel Pipeline Architecture Stages

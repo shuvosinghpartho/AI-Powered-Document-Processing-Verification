@@ -26,10 +26,10 @@ def test_list_documents():
     assert len(docs) >= 4  # Initial seeded sample documents
 
 def test_get_single_document():
-    response = client.get("/api/v1/documents/doc-101")
+    response = client.get("/api/v1/documents/doc-001")
     assert response.status_code == 200
     doc = response.json()
-    assert doc["id"] == "doc-101"
+    assert doc["id"] == "doc-001"
     assert doc["status"] == "VALID"
     assert doc["format"] == "PDF"
 
@@ -45,11 +45,11 @@ def test_search_documents():
     assert sem_res.json()["totalMatches"] >= 1
 
 def test_correct_document_values():
-    # Correct doc-102 math mismatch ($1210 -> $1150)
+    # Correct doc-005 math mismatch ($1210 -> $1150)
     payload = {
         "total": 1150.00
     }
-    response = client.put("/api/v1/documents/doc-102", json=payload)
+    response = client.put("/api/v1/documents/doc-005", json=payload)
     assert response.status_code == 200
     updated = response.json()
     assert updated["data"]["total"] == 1150.00
@@ -57,7 +57,7 @@ def test_correct_document_values():
 
 def test_cross_verify_documents():
     # Cross-verify two distinct documents
-    response = client.get("/api/v1/cross-verify?doc_a_id=doc-101&doc_b_id=doc-102")
+    response = client.get("/api/v1/cross-verify?doc_a_id=doc-001&doc_b_id=doc-005")
     assert response.status_code == 200
     data = response.json()
     assert "docA" in data

@@ -156,9 +156,9 @@ def test_smart_duplicate_ignores_same_filename_reupload():
         "total": 1650.0,
         "lineItems": [{"description": "Cloud VM", "qty": 1, "unitPrice": 1500.0}]
     }
-    # doc-101 is 'INV-2026-0891_Digital.pdf' in DB.
-    # Evaluating doc-101 with conn should pass duplicate check (not flag against itself)
-    report = evaluate_validation(doc_data, doc_id="doc-101", conn=conn)
+    # doc-001 is 'INV-2026-0891_Digital.pdf' in DB.
+    # Evaluating doc-001 with conn should pass duplicate check (not flag against itself)
+    report = evaluate_validation(doc_data, doc_id="doc-001", conn=conn)
     conn.close()
 
     dupe_check = next((c for c in report.checks if c.id == "rule-duplicate"), None)
