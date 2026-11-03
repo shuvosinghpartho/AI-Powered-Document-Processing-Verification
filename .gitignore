@@ -29,3 +29,8 @@ Thumbs.db
 backend/uploads/*
 !backend/uploads/.gitkeep
 
+# Logs and Process State
+logs/
+*.log
+.services.pid
+

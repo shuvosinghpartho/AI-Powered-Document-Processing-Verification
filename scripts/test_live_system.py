@@ -66,3 +66,4 @@ assert unsupp_res.status_code == 400
 print("   Unsupported File Rejection OK: 400 Bad Request received as expected")
 
 print("\n=== ALL 11 FUNCTIONAL API TESTS PASSED WITH 100% SUCCESS ===")
+
